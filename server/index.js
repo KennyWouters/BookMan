@@ -44,16 +44,12 @@ const isAdminAuthenticated = (req, res, next) => {
 };
 
 const client = new Client({
-    user: "postgres",
-    host: "localhost",
-    database: "Atelier",
-    password: "admin", // Replace with your PostgreSQL user password
-    port: 5432,
+    connectionString: "postgresql://neondb_owner:npg_VAOqNSZw9T8Q@ep-calm-wildflower-a2p78smq-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require"
 });
 
 client.connect()
-    .then(() => console.log("Connected to PostgreSQL"))
-    .catch((err) => console.error("Error connecting to PostgreSQL:", err));
+    .then(() => console.log("Connected to NeonDB PostgreSQL"))
+    .catch((err) => console.error("Error connecting to NeonDB PostgreSQL:", err));
 
 
 const createTables = async () => {
