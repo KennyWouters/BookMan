@@ -231,7 +231,7 @@ app.delete("/api/bookings/:id", async (req, res) => {
 
 // Serve the admin login page (no authentication required)
 app.get("/admin", (req, res) => {
-    res.sendFile(path.join(__dirname, "src", "admin-login.jsx"));
+    res.sendFile(path.join(__dirname, "/admin", "admin-login.jsx"));
 });
 
 // Admin login route (no authentication required)
