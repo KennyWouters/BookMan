@@ -4,13 +4,6 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/',
-  plugins: [tailwindcss(), react()],
-  build: {
-    rollupOptions: {
-      output: {
-        assetFileNames: 'assets/[name]-[hash][extname]'
-      }
-    }
-  }
+  plugins: [    tailwindcss(),
+    react()],
 })
