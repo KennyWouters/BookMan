@@ -8,9 +8,12 @@ import { sendEmail } from "./email.js";
 import * as path from "node:path"; // Import the email utility
 import session from "express-session";
 import bcrypt from "bcrypt";
+
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 const port = 3001;
@@ -228,7 +231,7 @@ app.delete("/api/bookings/:id", async (req, res) => {
 
 // Serve the admin login page (no authentication required)
 app.get("/admin", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "admin-login.jsx"));
+    res.sendFile(path.join(__dirname, "src", "admin-login.jsx"));
 });
 
 // Admin login route (no authentication required)
