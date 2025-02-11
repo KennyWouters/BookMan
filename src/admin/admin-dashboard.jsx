@@ -43,7 +43,7 @@ const AdminDashboard = () => {
     // Handle booking deletion
     const handleDeleteBooking = async (id) => {
         try {
-            const response = await fetch(`http://localhost:3001/api/bookings/${id}`, {
+            const response = await fetch(`https://book-man-b65d9d654296.herokuapp.com/api/bookings/${id}`, {
                 method: 'DELETE',
             });
 
