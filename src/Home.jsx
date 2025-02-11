@@ -21,7 +21,7 @@ function Home() {
     useEffect(() => {
         const fetchDates = async () => {
             try {
-                const response = await fetch("http://localhost:3001/api/dates");
+                const response = await fetch("https://book-man-b65d9d654296.herokuapp.com/api/dates");
                 if (!response.ok) {
                     throw new Error("Erreur lors de la récupération des dates.");
                 }
