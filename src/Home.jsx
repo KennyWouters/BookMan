@@ -41,7 +41,7 @@ function Home() {
         if (selectedDay) {
             const checkAvailability = async () => {
                 try {
-                    const response = await fetch(`http://localhost:3001/api/availability/${selectedDay}`);
+                    const response = await fetch(`https://book-man-b65d9d654296.herokuapp.com/api/availability/${selectedDay}`);
                     if (!response.ok) {
                         throw new Error("Erreur lors de la vérification de la disponibilité.");
                     }
@@ -70,7 +70,7 @@ function Home() {
         }
 
         try {
-            const response = await fetch("http://localhost:3001/api/book", {
+            const response = await fetch("https://book-man-b65d9d654296.herokuapp.com/api/book", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -116,7 +116,7 @@ function Home() {
         }
 
         try {
-            const response = await fetch("http://localhost:3001/api/notify", {
+            const response = await fetch("https://book-man-b65d9d654296.herokuapp.com/api/notify", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
