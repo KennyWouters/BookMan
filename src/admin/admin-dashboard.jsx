@@ -14,7 +14,7 @@ const AdminDashboard = () => {
         setLoading(true);
         try {
             const formattedDate = date.toISOString().split('T')[0];
-            const response = await fetch(`http://localhost:3001/api/admin/bookings?day=${formattedDate}`);
+            const response = await fetch(`https://book-man-b65d9d654296.herokuapp.com/api/admin/bookings?day=${formattedDate}`);
             if (response.ok) {
                 const data = await response.json();
                 setBookings(data);
