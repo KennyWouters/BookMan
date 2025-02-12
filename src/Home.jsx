@@ -168,7 +168,7 @@ function Home() {
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-4xl mx-auto space-y-8">
                 <div className="text-center">
-                    <h1 className="text-4xl font-extrabold text-gray-900 mb-4">Réservation de l'atelier FZW</h1>
+                    <h1 className="text-4xl font-extrabold text-gray-900 mb-4">Réservation de l'atelier Bois</h1>
                     <p className="text-xl text-gray-600">Sélectionnez votre date et heure</p>
                 </div>
 
