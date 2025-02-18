@@ -197,7 +197,7 @@ function Home() {
                                 </p>
                                 {isSelectable && (
                                     <div className="mt-2 text-sm text-blue-600 font-medium">
-                                        Disponible
+                                        {/*Disponible*/}
                                     </div>
                                 )}
                             </div>
@@ -238,119 +238,121 @@ function Home() {
                 )}
 
                 {/* Booking Form */}
-                <form
-                    onSubmit={handleSubmit}
-                    className="bg-white shadow-2xl rounded-2xl border border-gray-200 p-8 space-y-6"
-                >
-                    <div className="grid md:grid-cols-2 gap-4">
-                        <div>
-                            <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
-                                Prénom
-                            </label>
-                            <input
-                                id="firstName"
-                                type="text"
-                                value={firstName}
-                                onChange={(e) => setFirstName(e.target.value)}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
-                                Nom de famille
-                            </label>
-                            <input
-                                id="lastName"
-                                type="text"
-                                value={lastName}
-                                onChange={(e) => setLastName(e.target.value)}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                required
-                            />
-                        </div>
-                    </div>
-
-                    <div>
-                        <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-2">
-                            Numéro de téléphone
-                        </label>
-                        <input
-                            id="phoneNumber"
-                            type="tel"
-                            value={phoneNumber}
-                            onChange={(e) => setPhoneNumber(e.target.value)}
-                            placeholder="Ex: 0612345678"
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            required
-                        />
-                    </div>
-
-                    <div>
-                        <label htmlFor="selectedDay" className="block text-sm font-medium text-gray-700 mb-2">
-                            Jour sélectionné
-                        </label>
-                        <input
-                            id="selectedDay"
-                            type="text"
-                            value={formattedSelectedDay}
-                            readOnly
-                            className="w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg cursor-not-allowed"
-                            required
-                        />
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-4">
-                        <div>
-                            <label htmlFor="startHour" className="block text-sm font-medium text-gray-700 mb-2">
-                                Heure de début
-                            </label>
-                            <select
-                                id="startHour"
-                                value={startHour}
-                                onChange={(e) => setStartHour(parseInt(e.target.value))}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                required
-                            >
-                                {Array.from({ length: 6 }, (_, i) => (
-                                    <option key={i} value={14 + i}>
-                                        {14 + i}:00
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <div>
-                            <label htmlFor="endHour" className="block text-sm font-medium text-gray-700 mb-2">
-                                Heure de fin
-                            </label>
-                            <select
-                                id="endHour"
-                                value={endHour}
-                                onChange={(e) => setEndHour(parseInt(e.target.value))}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                required
-                            >
-                                {Array.from({ length: 6 }, (_, i) => (
-                                    <option key={i} value={14 + i}>
-                                        {14 + i}:00
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
-
-                    <button
-                        type="submit"
-                        disabled={isLoading}
-                        className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
+                {selectedDay && !isFullyBooked && (
+                    <form
+                        onSubmit={handleSubmit}
+                        className="bg-white shadow-2xl rounded-2xl border border-gray-200 p-8 space-y-6"
                     >
-                        {isLoading ? (
-                            <><RefreshCw className="mr-2 animate-spin" /> Chargement...</>
-                        ) : (
-                            <><Check className="mr-2" /> Réserver</>
-                        )}
-                    </button>
-                </form>
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
+                                    Prénom
+                                </label>
+                                <input
+                                    id="firstName"
+                                    type="text"
+                                    value={firstName}
+                                    onChange={(e) => setFirstName(e.target.value)}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
+                                    Nom de famille
+                                </label>
+                                <input
+                                    id="lastName"
+                                    type="text"
+                                    value={lastName}
+                                    onChange={(e) => setLastName(e.target.value)}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-2">
+                                Numéro de téléphone
+                            </label>
+                            <input
+                                id="phoneNumber"
+                                type="tel"
+                                value={phoneNumber}
+                                onChange={(e) => setPhoneNumber(e.target.value)}
+                                placeholder="Ex: 0612345678"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                required
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="selectedDay" className="block text-sm font-medium text-gray-700 mb-2">
+                                Jour sélectionné
+                            </label>
+                            <input
+                                id="selectedDay"
+                                type="text"
+                                value={formattedSelectedDay}
+                                readOnly
+                                className="w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg cursor-not-allowed"
+                                required
+                            />
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label htmlFor="startHour" className="block text-sm font-medium text-gray-700 mb-2">
+                                    Heure de début
+                                </label>
+                                <select
+                                    id="startHour"
+                                    value={startHour}
+                                    onChange={(e) => setStartHour(parseInt(e.target.value))}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    required
+                                >
+                                    {Array.from({ length: 6 }, (_, i) => (
+                                        <option key={i} value={14 + i}>
+                                            {14 + i}:00
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label htmlFor="endHour" className="block text-sm font-medium text-gray-700 mb-2">
+                                    Heure de fin
+                                </label>
+                                <select
+                                    id="endHour"
+                                    value={endHour}
+                                    onChange={(e) => setEndHour(parseInt(e.target.value))}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    required
+                                >
+                                    {Array.from({ length: 6 }, (_, i) => (
+                                        <option key={i} value={14 + i}>
+                                            {14 + i}:00
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        <button
+                            type="submit"
+                            disabled={isLoading}
+                            className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
+                        >
+                            {isLoading ? (
+                                <><RefreshCw className="mr-2 animate-spin" /> Chargement...</>
+                            ) : (
+                                <><Check className="mr-2" /> Réserver</>
+                            )}
+                        </button>
+                    </form>
+                )}
 
                 {/* Admin Login Button */}
                 <div className="text-center mt-8">
