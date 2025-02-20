@@ -71,44 +71,45 @@ const AdminDashboard = () => {
     // Update just the handleUpdateAvailability function in your component:
 
     const handleUpdateAvailability = async () => {
-        const formattedDate = selectedDate.toISOString().split('T')[0];
+    const formattedDate = selectedDate.toISOString().split('T')[0];
 
-        try {
-            const response = await fetch(`https://book-man-b65d9d654296.herokuapp.com/api/admin/availability/${formattedDate}`, {
-                method: 'PUT',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    isOpen: availabilitySettings.isOpen,
-                    maxBookings: parseInt(availabilitySettings.maxBookings)
-                })
-            });
+    try {
+        const response = await fetch(`https://book-man-b65d9d654296.herokuapp.com/api/admin/availability/${formattedDate}`, {
+            method: 'PUT',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${ae}`
+            },
+            body: JSON.stringify({
+                isOpen: D.isOpen,
+                maxBookings: parseInt(D.maxBookings)
+            })
+        });
 
-            if (response.ok) {
-                // Update state locally
-                setAvailabilitySettings((prev) => ({
-                    ...prev,
-                    isOpen: availabilitySettings.isOpen,
-                    maxBookings: parseInt(availabilitySettings.maxBookings)
-                }));
+        if (response.ok) {
+            // Update state locally
+            setAvailabilitySettings((prev) => ({
+                ...prev,
+                isOpen: D.isOpen,
+                maxBookings: parseInt(D.maxBookings)
+            }));
 
-                setMessage('Availability settings updated successfully');
-                setTimeout(() => setMessage(''), 3000);
-            } else if (response.status === 403) {
-                setMessage('Session expired. Please log in again.');
-                handleLogout();
-            } else {
-                const errorData = await response.json();
-                console.error('Failed to update availability settings:', errorData);
-                setMessage('Failed to update availability settings');
-            }
-        } catch (error) {
-            console.error('Error updating availability:', error);
+            setMessage('Availability settings updated successfully');
+            setTimeout(() => setMessage(''), 3000);
+        } else if (response.status === 403) {
+            setMessage('Session expired. Please log in again.');
+            handleLogout();
+        } else {
+            const errorData = await response.json();
+            console.error('Failed to update availability settings:', errorData);
             setMessage('Failed to update availability settings');
         }
-    };
+    } catch (error) {
+        console.error('Error updating availability:', error);
+        setMessage('Failed to update availability settings');
+    }
+};
 
 
     // Handle logout
