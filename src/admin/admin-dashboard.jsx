@@ -23,8 +23,6 @@ const AdminDashboard = () => {
 
     const fetchData = async (date) => {
         setLoading(true);
-        const adminId = localStorage.getItem('adminId');
-
         try {
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -33,9 +31,7 @@ const AdminDashboard = () => {
 
             // Fetch bookings
             const bookingsResponse = await fetch(`https://book-man-b65d9d654296.herokuapp.com/api/admin/bookings?day=${formattedDate}`, {
-                headers: {
-                    'Authorization': `Bearer ${adminId}`
-                }
+                credentials: 'include' // Include cookies in the request
             });
             if (bookingsResponse.ok) {
                 const bookingsData = await bookingsResponse.json();
@@ -44,9 +40,7 @@ const AdminDashboard = () => {
 
             // Fetch availability settings
             const availabilityResponse = await fetch(`https://book-man-b65d9d654296.herokuapp.com/api/availability/${formattedDate}`, {
-                headers: {
-                    'Authorization': `Bearer ${adminId}`
-                }
+                credentials: 'include' // Include cookies in the request
             });
             if (availabilityResponse.ok) {
                 const availabilityData = await availabilityResponse.json();
@@ -56,8 +50,8 @@ const AdminDashboard = () => {
                     currentBookings: availabilityData.currentBookings || 0
                 });
             } else if (availabilityResponse.status === 403) {
-                setMessage('Access denied. Please log in again.');
-                handleLogout(); // Redirect to login if authentication fails
+                setMessage('Session expired. Please log in again.');
+                handleLogout();
             }
         } catch (error) {
             console.error('Error fetching data:', error);
