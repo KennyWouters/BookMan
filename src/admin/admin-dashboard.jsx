@@ -19,8 +19,12 @@ const AdminDashboard = () => {
     });
 
     // Fetch both bookings and availability for the selected date
+    // Update the fetchData function to include authentication:
+
     const fetchData = async (date) => {
         setLoading(true);
+        const adminId = localStorage.getItem('adminId');
+
         try {
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -28,14 +32,22 @@ const AdminDashboard = () => {
             const formattedDate = `${year}-${month}-${day}`;
 
             // Fetch bookings
-            const bookingsResponse = await fetch(`https://book-man-b65d9d654296.herokuapp.com/api/admin/bookings?day=${formattedDate}`);
+            const bookingsResponse = await fetch(`https://book-man-b65d9d654296.herokuapp.com/api/admin/bookings?day=${formattedDate}`, {
+                headers: {
+                    'Authorization': `Bearer ${adminId}`
+                }
+            });
             if (bookingsResponse.ok) {
                 const bookingsData = await bookingsResponse.json();
                 setBookings(bookingsData);
             }
 
             // Fetch availability settings
-            const availabilityResponse = await fetch(`https://book-man-b65d9d654296.herokuapp.com/api/availability/${formattedDate}`);
+            const availabilityResponse = await fetch(`https://book-man-b65d9d654296.herokuapp.com/api/availability/${formattedDate}`, {
+                headers: {
+                    'Authorization': `Bearer ${adminId}`
+                }
+            });
             if (availabilityResponse.ok) {
                 const availabilityData = await availabilityResponse.json();
                 setAvailabilitySettings({
@@ -43,6 +55,9 @@ const AdminDashboard = () => {
                     maxBookings: availabilityData.maxBookings || 10,
                     currentBookings: availabilityData.currentBookings || 0
                 });
+            } else if (availabilityResponse.status === 403) {
+                setMessage('Access denied. Please log in again.');
+                handleLogout(); // Redirect to login if authentication fails
             }
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -59,17 +74,23 @@ const AdminDashboard = () => {
     };
 
     // Handle availability settings update
+    // Update just the handleUpdateAvailability function in your component:
+
     const handleUpdateAvailability = async () => {
         const year = selectedDate.getFullYear();
         const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
         const day = String(selectedDate.getDate()).padStart(2, '0');
         const formattedDate = `${year}-${month}-${day}`;
 
+        // Get the adminId from localStorage
+        const adminId = localStorage.getItem('adminId');
+
         try {
             const response = await fetch(`https://book-man-b65d9d654296.herokuapp.com/api/admin/availability/${formattedDate}`, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${adminId}` // Add the authorization header
                 },
                 body: JSON.stringify({
                     isOpen: availabilitySettings.isOpen,
@@ -81,6 +102,9 @@ const AdminDashboard = () => {
                 setMessage('Availability settings updated successfully');
                 setTimeout(() => setMessage(''), 3000);
                 fetchData(selectedDate);
+            } else if (response.status === 403) {
+                setMessage('Access denied. Please log in again.');
+                handleLogout(); // Redirect to login if authentication fails
             } else {
                 setMessage('Failed to update availability settings');
             }
