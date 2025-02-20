@@ -72,6 +72,7 @@ const AdminDashboard = () => {
 
     const handleUpdateAvailability = async () => {
     const formattedDate = selectedDate.toISOString().split('T')[0];
+    const authToken = localStorage.getItem('authToken'); // Retrieve the token from local storage
 
     try {
         const response = await fetch(`https://book-man-b65d9d654296.herokuapp.com/api/admin/availability/${formattedDate}`, {
@@ -79,11 +80,11 @@ const AdminDashboard = () => {
             credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${ae}`
+                Authorization: `Bearer ${authToken}` // Use the token in the Authorization header
             },
             body: JSON.stringify({
-                isOpen: D.isOpen,
-                maxBookings: parseInt(D.maxBookings)
+                isOpen: availabilitySettings.isOpen,
+                maxBookings: parseInt(availabilitySettings.maxBookings)
             })
         });
 
@@ -91,8 +92,8 @@ const AdminDashboard = () => {
             // Update state locally
             setAvailabilitySettings((prev) => ({
                 ...prev,
-                isOpen: D.isOpen,
-                maxBookings: parseInt(D.maxBookings)
+                isOpen: availabilitySettings.isOpen,
+                maxBookings: parseInt(availabilitySettings.maxBookings)
             }));
 
             setMessage('Availability settings updated successfully');
