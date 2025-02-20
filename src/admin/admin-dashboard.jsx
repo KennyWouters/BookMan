@@ -8,12 +8,13 @@ const AdminDashboard = () => {
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState('');
+    const [unavailableDates, setUnavailableDates] = useState([]);
 
     // Fetch bookings for the selected date
     const fetchBookings = async (date) => {
         setLoading(true);
         try {
-            // const formattedDate = date.toISOString().split('T')[0];
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const day = String(date.getDate()).padStart(2, '0');
@@ -63,6 +64,23 @@ const AdminDashboard = () => {
         }
     };
 
+    // Handle setting the selected date as unavailable
+    const handleSetUnavailable = async () => {
+        try {
+            const response = await fetch('https://book-man-b65d9d654296.herokuapp.com/api/admin/set-unavailable', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ day: selectedDate.toISOString().split('T')[0] }),
+            });
+
+            const data = await response.json();
+            setMessage(data.message);
+            setUnavailableDates([...unavailableDates, selectedDate]);
+        } catch (error) {
+            console.error('Error setting date as unavailable:', error);
+        }
+    };
+
     // Fetch bookings when the component mounts or the selected date changes
     useEffect(() => {
         fetchBookings(selectedDate);
@@ -85,9 +103,22 @@ const AdminDashboard = () => {
                     <Calendar
                         onChange={handleDateChange} // Callback when a date is selected
                         value={selectedDate} // The currently selected date
+                        tileDisabled={({ date }) => unavailableDates.some(unavailableDate =>
+                            date.getFullYear() === unavailableDate.getFullYear() &&
+                            date.getMonth() === unavailableDate.getMonth() &&
+                            date.getDate() === unavailableDate.getDate()
+                        )}
                         className="mx-auto"
                     />
                 </div>
+
+                {/* Button to set the selected date as unavailable */}
+                <button
+                    onClick={handleSetUnavailable}
+                    className="mb-6 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                >
+                    Set Selected Date as Unavailable
+                </button>
 
                 {/* Display bookings for the selected date */}
                 <div>
@@ -114,6 +145,9 @@ const AdminDashboard = () => {
                         <p className="text-center text-gray-500">No bookings for this date.</p>
                     )}
                 </div>
+
+                {/* Display message */}
+                {message && <p className="mt-4 text-center text-green-500">{message}</p>}
             </div>
         </div>
     );
