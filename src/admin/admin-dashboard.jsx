@@ -82,15 +82,12 @@ const AdminDashboard = () => {
         const day = String(selectedDate.getDate()).padStart(2, '0');
         const formattedDate = `${year}-${month}-${day}`;
 
-        // Get the adminId from localStorage
-        const adminId = localStorage.getItem('adminId');
-
         try {
             const response = await fetch(`https://book-man-b65d9d654296.herokuapp.com/api/admin/availability/${formattedDate}`, {
                 method: 'PUT',
+                credentials: 'include', // Include cookies in the request
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${adminId}` // Add the authorization header
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     isOpen: availabilitySettings.isOpen,
@@ -103,8 +100,8 @@ const AdminDashboard = () => {
                 setTimeout(() => setMessage(''), 3000);
                 fetchData(selectedDate);
             } else if (response.status === 403) {
-                setMessage('Access denied. Please log in again.');
-                handleLogout(); // Redirect to login if authentication fails
+                setMessage('Session expired. Please log in again.');
+                handleLogout();
             } else {
                 setMessage('Failed to update availability settings');
             }
