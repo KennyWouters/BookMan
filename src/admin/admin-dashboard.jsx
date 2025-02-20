@@ -71,15 +71,12 @@ const AdminDashboard = () => {
     // Update just the handleUpdateAvailability function in your component:
 
     const handleUpdateAvailability = async () => {
-        const year = selectedDate.getFullYear();
-        const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
-        const day = String(selectedDate.getDate()).padStart(2, '0');
-        const formattedDate = `${year}-${month}-${day}`;
+        const formattedDate = selectedDate.toISOString().split('T')[0];
 
         try {
             const response = await fetch(`https://book-man-b65d9d654296.herokuapp.com/api/admin/availability/${formattedDate}`, {
                 method: 'PUT',
-                credentials: 'include', // Include cookies in the request
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -90,13 +87,21 @@ const AdminDashboard = () => {
             });
 
             if (response.ok) {
+                // Update state locally
+                setAvailabilitySettings((prev) => ({
+                    ...prev,
+                    isOpen: availabilitySettings.isOpen,
+                    maxBookings: parseInt(availabilitySettings.maxBookings)
+                }));
+
                 setMessage('Availability settings updated successfully');
                 setTimeout(() => setMessage(''), 3000);
-                fetchData(selectedDate);
             } else if (response.status === 403) {
                 setMessage('Session expired. Please log in again.');
                 handleLogout();
             } else {
+                const errorData = await response.json();
+                console.error('Failed to update availability settings:', errorData);
                 setMessage('Failed to update availability settings');
             }
         } catch (error) {
@@ -104,6 +109,7 @@ const AdminDashboard = () => {
             setMessage('Failed to update availability settings');
         }
     };
+
 
     // Handle logout
     const handleLogout = () => {
@@ -119,7 +125,10 @@ const AdminDashboard = () => {
             });
 
             if (response.ok) {
-                fetchData(selectedDate);
+                // Instead of refetching, update state locally
+                setBookings((prevBookings) => prevBookings.filter(booking => booking.id !== id));
+                setMessage('Booking deleted successfully');
+                setTimeout(() => setMessage(''), 3000);
             } else {
                 setMessage('Failed to delete booking');
             }
@@ -128,6 +137,7 @@ const AdminDashboard = () => {
             setMessage('Failed to delete booking');
         }
     };
+
 
     useEffect(() => {
         fetchData(selectedDate);
@@ -160,6 +170,7 @@ const AdminDashboard = () => {
                         )}
                         className="mx-auto"
                     />
+
                 </div>
 
                 {/* Availability Settings Section */}
