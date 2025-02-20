@@ -16,7 +16,6 @@ const AdminLogin = () => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ firstName, password }),
-                credentials: 'include'  // This ensures cookies (sessions) are sent
             });
 
             if (response.ok) {
