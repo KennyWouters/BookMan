@@ -70,45 +70,45 @@ const AdminDashboard = () => {
     // Handle availability settings update
     // Update just the handleUpdateAvailability function in your component:
 
-    const handleUpdateAvailability = async () => {
-        const formattedDate = selectedDate.toISOString().split('T')[0];
-
-        try {
-            const response = await fetch(`https://book-man-b65d9d654296.herokuapp.com/api/admin/availability/${formattedDate}`, {
-                method: 'PUT',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    isOpen: availabilitySettings.isOpen,
-                    maxBookings: parseInt(availabilitySettings.maxBookings)
-                })
-            });
-
-            if (response.ok) {
-                // Update state locally
-                setAvailabilitySettings((prev) => ({
-                    ...prev,
-                    isOpen: availabilitySettings.isOpen,
-                    maxBookings: parseInt(availabilitySettings.maxBookings)
-                }));
-
-                setMessage('Availability settings updated successfully');
-                setTimeout(() => setMessage(''), 3000);
-            } else if (response.status === 403) {
-                setMessage('Session expired. Please log in again.');
-                handleLogout();
-            } else {
-                const errorData = await response.json();
-                console.error('Failed to update availability settings:', errorData);
-                setMessage('Failed to update availability settings');
-            }
-        } catch (error) {
-            console.error('Error updating availability:', error);
-            setMessage('Failed to update availability settings');
-        }
-    };
+    // const handleUpdateAvailability = async () => {
+    //     const formattedDate = selectedDate.toISOString().split('T')[0];
+    //
+    //     try {
+    //         const response = await fetch(`https://book-man-b65d9d654296.herokuapp.com/api/admin/availability/${formattedDate}`, {
+    //             method: 'PUT',
+    //             credentials: 'include',
+    //             headers: {
+    //                 'Content-Type': 'application/json'
+    //             },
+    //             body: JSON.stringify({
+    //                 isOpen: availabilitySettings.isOpen,
+    //                 maxBookings: parseInt(availabilitySettings.maxBookings)
+    //             })
+    //         });
+    //
+    //         if (response.ok) {
+    //             // Update state locally
+    //             setAvailabilitySettings((prev) => ({
+    //                 ...prev,
+    //                 isOpen: availabilitySettings.isOpen,
+    //                 maxBookings: parseInt(availabilitySettings.maxBookings)
+    //             }));
+    //
+    //             setMessage('Availability settings updated successfully');
+    //             setTimeout(() => setMessage(''), 3000);
+    //         } else if (response.status === 403) {
+    //             setMessage('Session expired. Please log in again.');
+    //             handleLogout();
+    //         } else {
+    //             const errorData = await response.json();
+    //             console.error('Failed to update availability settings:', errorData);
+    //             setMessage('Failed to update availability settings');
+    //         }
+    //     } catch (error) {
+    //         console.error('Error updating availability:', error);
+    //         setMessage('Failed to update availability settings');
+    //     }
+    // };
 
 
     // Handle logout
@@ -174,47 +174,47 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* Availability Settings Section */}
-                <div className="mb-6 bg-white rounded-lg shadow p-6 border border-gray-200">
-                    <h2 className="text-xl font-semibold mb-4">Availability Settings</h2>
-                    <div className="space-y-4">
-                        <div className="flex items-center space-x-2">
-                            <input
-                                type="checkbox"
-                                checked={availabilitySettings.isOpen}
-                                onChange={(e) => setAvailabilitySettings({
-                                    ...availabilitySettings,
-                                    isOpen: e.target.checked
-                                })}
-                                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                            />
-                            <span className="text-gray-700">Day is Open for Bookings</span>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Maximum Bookings
-                            </label>
-                            <input
-                                type="number"
-                                value={availabilitySettings.maxBookings}
-                                onChange={(e) => setAvailabilitySettings({
-                                    ...availabilitySettings,
-                                    maxBookings: e.target.value
-                                })}
-                                min="1"
-                                className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                            />
-                        </div>
-                        <div className="text-sm text-gray-600">
-                            Current Bookings: {availabilitySettings.currentBookings}
-                        </div>
-                        <button
-                            onClick={handleUpdateAvailability}
-                            className="w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-                        >
-                            Update Availability
-                        </button>
-                    </div>
-                </div>
+                {/*<div className="mb-6 bg-white rounded-lg shadow p-6 border border-gray-200">*/}
+                {/*    <h2 className="text-xl font-semibold mb-4">Availability Settings</h2>*/}
+                {/*    <div className="space-y-4">*/}
+                {/*        <div className="flex items-center space-x-2">*/}
+                {/*            <input*/}
+                {/*                type="checkbox"*/}
+                {/*                checked={availabilitySettings.isOpen}*/}
+                {/*                onChange={(e) => setAvailabilitySettings({*/}
+                {/*                    ...availabilitySettings,*/}
+                {/*                    isOpen: e.target.checked*/}
+                {/*                })}*/}
+                {/*                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"*/}
+                {/*            />*/}
+                {/*            <span className="text-gray-700">Day is Open for Bookings</span>*/}
+                {/*        </div>*/}
+                {/*        <div>*/}
+                {/*            <label className="block text-sm font-medium text-gray-700 mb-2">*/}
+                {/*                Maximum Bookings*/}
+                {/*            </label>*/}
+                {/*            <input*/}
+                {/*                type="number"*/}
+                {/*                value={availabilitySettings.maxBookings}*/}
+                {/*                onChange={(e) => setAvailabilitySettings({*/}
+                {/*                    ...availabilitySettings,*/}
+                {/*                    maxBookings: e.target.value*/}
+                {/*                })}*/}
+                {/*                min="1"*/}
+                {/*                className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"*/}
+                {/*            />*/}
+                {/*        </div>*/}
+                {/*        <div className="text-sm text-gray-600">*/}
+                {/*            Current Bookings: {availabilitySettings.currentBookings}*/}
+                {/*        </div>*/}
+                {/*        <button*/}
+                {/*            onClick={handleUpdateAvailability}*/}
+                {/*            className="w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"*/}
+                {/*        >*/}
+                {/*            Update Availability*/}
+                {/*        </button>*/}
+                {/*    </div>*/}
+                {/*</div>*/}
 
                 {/* Bookings Section */}
                 <div>
