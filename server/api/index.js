@@ -103,12 +103,23 @@ const getMondayOfCurrentWeek = () => {
 };
 
 // API to fetch calendar dates (from Monday of the current week to Sunday of the next week)
-app.get("/api/dates", (req, res) => {
-    const monday = getMondayOfCurrentWeek();
+// app.get("/api/dates", (req, res) => {
+//     const monday = getMondayOfCurrentWeek();
+//     const dates = Array.from({ length: 14 }, (_, i) => {
+//         const date = new Date(monday);
+//         date.setDate(monday.getDate() + i);
+//         return date.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+//     });
+//     res.json(dates);
+// });
+
+
+app.get("/api/dates", async (req, res) => {
+    const monday = await getMondayBeforeEndDate();
     const dates = Array.from({ length: 14 }, (_, i) => {
         const date = new Date(monday);
         date.setDate(monday.getDate() + i);
-        return date.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+        return date.toISOString().split("T")[0];
     });
     res.json(dates);
 });
@@ -305,12 +316,33 @@ app.get('/api/admin/bookings', async (req, res) => {
 });
 
 // Schedule a task to delete all bookings every Monday at midnight
+// cron.schedule("0 0 * * 1", async () => {
+//     try {
+//         await client.query(`DELETE FROM bookings`);
+//         console.log("All bookings deleted (scheduled Monday cleanup).");
+//     } catch (err) {
+//         console.error("Error deleting bookings:", err);
+//     }
+// });
+
+
 cron.schedule("0 0 * * 1", async () => {
     try {
-        await client.query(`DELETE FROM bookings`);
-        console.log("All bookings deleted (scheduled Monday cleanup).");
+        const endDateResult = await client.query('SELECT end_date FROM end_date LIMIT 1');
+        if (endDateResult.rows.length === 0) return;
+
+        const currentEndDate = new Date(endDateResult.rows[0].end_date);
+        const today = new Date();
+
+        if (currentEndDate < today) {
+            const newEndDate = new Date(currentEndDate);
+            newEndDate.setDate(currentEndDate.getDate() + 14);
+
+            await client.query('UPDATE end_date SET end_date = $1', [newEndDate.toISOString().split('T')[0]]);
+            console.log(`End date updated to ${newEndDate.toISOString().split('T')[0]}`);
+        }
     } catch (err) {
-        console.error("Error deleting bookings:", err);
+        console.error("Error updating end date:", err);
     }
 });
 
@@ -325,6 +357,28 @@ cron.schedule("0 0 * * 1", async () => {
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
+
+const getMondayBeforeEndDate = async () => {
+    try {
+        const result = await client.query('SELECT end_date FROM end_date LIMIT 1');
+        if (result.rows.length === 0) return getMondayOfCurrentWeek();
+
+        const endDate = new Date(result.rows[0].end_date);
+        const twoWeeksBeforeEnd = new Date(endDate);
+        twoWeeksBeforeEnd.setDate(endDate.getDate() - 13);
+
+        const dayOfWeek = twoWeeksBeforeEnd.getDay();
+        if (dayOfWeek !== 1) {
+            twoWeeksBeforeEnd.setDate(twoWeeksBeforeEnd.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+        }
+
+        twoWeeksBeforeEnd.setHours(0, 0, 0, 0);
+        return twoWeeksBeforeEnd;
+    } catch (err) {
+        console.error("Error getting end date:", err);
+        return getMondayOfCurrentWeek(); // Fallback
+    }
+};
 
 
 
