@@ -13,6 +13,28 @@ const AdminDashboard = () => {
     const [message, setMessage] = useState('');
     const [unavailableDates, setUnavailableDates] = useState([]);
     const [isAvailable, setIsAvailable] = useState(true);
+    const [adminName, setAdminName] = useState('');
+
+    const fetchAdminName = async () => {
+        try {
+            const response = await fetch(`${API_URL}/api/admin/name`, {
+                credentials: 'include'
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setAdminName(data.name);
+            } else {
+                setMessage('Failed to fetch admin name');
+            }
+        } catch (error) {
+            console.error('Error fetching admin name:', error);
+            setMessage('Failed to fetch admin name');
+        }
+    };
+
+    useEffect(() => {
+        fetchAdminName();
+    }, []);
 
     const fetchData = async (date) => {
         setLoading(true);
@@ -86,7 +108,7 @@ const AdminDashboard = () => {
         <div className="min-h-screen bg-gray-100 p-8">
             <div className="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-lg">
                 <div className="flex justify-between items-center mb-6">
-                    <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+                    <h1 className="text-3xl font-bold">Welcome, {adminName}</h1>
                     <button
                         onClick={handleLogout}
                         className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"

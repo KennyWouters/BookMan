@@ -6,6 +6,7 @@ const AvailabilityForm = ({ selectedDate, setUnavailableDates }) => {
     const [comment, setComment] = useState('');
     const [message, setMessage] = useState('');
     const [statusCache, setStatusCache] = useState({});
+    const [isFormVisible, setIsFormVisible] = useState(false);
 
     useEffect(() => {
         console.log('Date changed, checking cache');
@@ -126,48 +127,62 @@ const AvailabilityForm = ({ selectedDate, setUnavailableDates }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-                <label className="block text-sm font-medium text-gray-700">Date</label>
-                <input
-                    type="text"
-                    value={selectedDate.toDateString()}
-                    readOnly
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
-                />
-            </div>
-            <div>
-                <label className="block text-sm font-medium text-gray-700">Status</label>
-                <select
-                    value={status || ''}
-                    onChange={(e) => setStatus(e.target.value || null)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                >
-                    <option value="">Select a status</option>
-                    <option value="true">Available</option>
-                    <option value="false">Unavailable</option>
-                </select>
-            </div>
-            <div>
-                <label className="block text-sm font-medium text-gray-700">Comment</label>
-                <textarea
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                />
-            </div>
-            <button
-                type="submit"
-                className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        <div className="w-1/2 mx-auto">
+            <p 
+                className="text-center text-2xl font-bold mb-4 cursor-pointer hover:text-blue-600 transition-colors"
+                onClick={() => setIsFormVisible(!isFormVisible)}
             >
-                Update Availability
-            </button>
-            {message && (
-                <div className={`mt-4 p-4 rounded ${message.includes('success') ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>
-                    {message}
-                </div>
-            )}
-        </form>
+                Modifier la disponibilité du {selectedDate.toDateString()}
+                <span className="ml-2 text-sm text-gray-500">
+                    {isFormVisible ? '(click to hide)' : '(click to show)'}
+                </span>
+            </p>
+            
+            <div className={`transition-all duration-300 ${isFormVisible ? 'opacity-100' : 'opacity-0 h-0 overflow-hidden'}`}>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Date</label>
+                        <input
+                            type="text"
+                            value={selectedDate.toDateString()}
+                            readOnly
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Status</label>
+                        <select
+                            value={status || ''}
+                            onChange={(e) => setStatus(e.target.value || null)}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                        >
+                            <option value="">Select a status</option>
+                            <option value="true">Available</option>
+                            <option value="false">Unavailable</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Commentaire</label>
+                        <textarea
+                            value={comment}
+                            onChange={(e) => setComment(e.target.value)}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                        />
+                    </div>
+                    <button
+                        type="submit"
+                        className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                        Update Availability
+                    </button>
+                    {message && (
+                        <div className={`mt-4 p-4 rounded ${message.includes('success') ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>
+                            {message}
+                        </div>
+                    )}
+                </form>
+            </div>
+        </div>
     );
 };
 
