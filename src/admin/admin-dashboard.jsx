@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import {API_URL} from "../utils/api.js";
+import { API_URL } from "../utils/api.js";
+import AvailabilityForm from "./components/AvailabilityForm.jsx";
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
@@ -11,16 +12,7 @@ const AdminDashboard = () => {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
     const [unavailableDates, setUnavailableDates] = useState([]);
-
-    // Availability settings state
-    const [availabilitySettings, setAvailabilitySettings] = useState({
-        isOpen: true,
-        maxBookings: 10,
-        currentBookings: 0
-    });
-
-    // Fetch both bookings and availability for the selected date
-    // Update the fetchData function to include authentication:
+    const [isAvailable, setIsAvailable] = useState(true);
 
     const fetchData = async (date) => {
         setLoading(true);
@@ -30,26 +22,20 @@ const AdminDashboard = () => {
             const day = String(date.getDate()).padStart(2, '0');
             const formattedDate = `${year}-${month}-${day}`;
 
-            // Fetch bookings
             const bookingsResponse = await fetch(`${API_URL}/api/admin/bookings?day=${formattedDate}`, {
-                credentials: 'include' // Include cookies in the request
+                credentials: 'include'
             });
             if (bookingsResponse.ok) {
                 const bookingsData = await bookingsResponse.json();
                 setBookings(bookingsData);
             }
 
-            // Fetch availability settings
-            const availabilityResponse = await fetch(`${API_URL}/api/availability/${formattedDate}`, {
-                credentials: 'include' // Include cookies in the request
+            const availabilityResponse = await fetch(`${API_URL}/api/availability-status/${formattedDate}`, {
+                credentials: 'include'
             });
             if (availabilityResponse.ok) {
                 const availabilityData = await availabilityResponse.json();
-                setAvailabilitySettings({
-                    isOpen: !availabilityData.isClosed,
-                    maxBookings: availabilityData.maxBookings || 10,
-                    currentBookings: availabilityData.currentBookings || 0
-                });
+                setIsAvailable(availabilityData.status);
             } else if (availabilityResponse.status === 403) {
                 setMessage('Session expired. Please log in again.');
                 handleLogout();
@@ -62,72 +48,25 @@ const AdminDashboard = () => {
         }
     };
 
-    // Handle date change in the calendar
     const handleDateChange = (date) => {
         setSelectedDate(date);
         fetchData(date);
     };
 
-    // Handle availability settings update
-    // Update just the handleUpdateAvailability function in your component:
-
-    // const handleUpdateAvailability = async () => {
-    //     const formattedDate = selectedDate.toISOString().split('T')[0];
-    //
-    //     try {
-    //         const response = await fetch(`https://book-man-b65d9d654296.herokuapp.com/api/admin/availability/${formattedDate}`, {
-    //             method: 'PUT',
-    //             credentials: 'include',
-    //             headers: {
-    //                 'Content-Type': 'application/json'
-    //             },
-    //             body: JSON.stringify({
-    //                 isOpen: availabilitySettings.isOpen,
-    //                 maxBookings: parseInt(availabilitySettings.maxBookings)
-    //             })
-    //         });
-    //
-    //         if (response.ok) {
-    //             // Update state locally
-    //             setAvailabilitySettings((prev) => ({
-    //                 ...prev,
-    //                 isOpen: availabilitySettings.isOpen,
-    //                 maxBookings: parseInt(availabilitySettings.maxBookings)
-    //             }));
-    //
-    //             setMessage('Availability settings updated successfully');
-    //             setTimeout(() => setMessage(''), 3000);
-    //         } else if (response.status === 403) {
-    //             setMessage('Session expired. Please log in again.');
-    //             handleLogout();
-    //         } else {
-    //             const errorData = await response.json();
-    //             console.error('Failed to update availability settings:', errorData);
-    //             setMessage('Failed to update availability settings');
-    //         }
-    //     } catch (error) {
-    //         console.error('Error updating availability:', error);
-    //         setMessage('Failed to update availability settings');
-    //     }
-    // };
-
-
-    // Handle logout
     const handleLogout = () => {
         localStorage.removeItem('adminId');
         navigate('/admin/login');
     };
 
-    // Handle booking deletion
-    const handleDeleteBooking = async (id) => {
+    const handleDeleteBooking = async (bookingId) => {
         try {
-            const response = await fetch(`${API_URL}/api/bookings/${id}`, {
+            const response = await fetch(`${API_URL}/api/bookings/${bookingId}`, {
                 method: 'DELETE',
+                credentials: 'include'
             });
 
             if (response.ok) {
-                // Instead of refetching, update state locally
-                setBookings((prevBookings) => prevBookings.filter(booking => booking.id !== id));
+                setBookings(prevBookings => prevBookings.filter(booking => booking.id !== bookingId));
                 setMessage('Booking deleted successfully');
                 setTimeout(() => setMessage(''), 3000);
             } else {
@@ -139,7 +78,6 @@ const AdminDashboard = () => {
         }
     };
 
-
     useEffect(() => {
         fetchData(selectedDate);
     }, [selectedDate]);
@@ -147,7 +85,6 @@ const AdminDashboard = () => {
     return (
         <div className="min-h-screen bg-gray-100 p-8">
             <div className="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-lg">
-                {/* Header */}
                 <div className="flex justify-between items-center mb-6">
                     <h1 className="text-3xl font-bold">Admin Dashboard</h1>
                     <button
@@ -158,66 +95,17 @@ const AdminDashboard = () => {
                     </button>
                 </div>
 
-                {/* Calendar Section */}
                 <div className="mb-6">
                     <h2 className="text-xl font-semibold mb-4">Select a Date</h2>
                     <Calendar
                         onChange={handleDateChange}
                         value={selectedDate}
-                        tileDisabled={({ date }) => unavailableDates.some(unavailableDate =>
-                            date.getFullYear() === unavailableDate.getFullYear() &&
-                            date.getMonth() === unavailableDate.getMonth() &&
-                            date.getDate() === unavailableDate.getDate()
-                        )}
                         className="mx-auto"
                     />
-
                 </div>
 
-                {/* Availability Settings Section */}
-                {/*<div className="mb-6 bg-white rounded-lg shadow p-6 border border-gray-200">*/}
-                {/*    <h2 className="text-xl font-semibold mb-4">Availability Settings</h2>*/}
-                {/*    <div className="space-y-4">*/}
-                {/*        <div className="flex items-center space-x-2">*/}
-                {/*            <input*/}
-                {/*                type="checkbox"*/}
-                {/*                checked={availabilitySettings.isOpen}*/}
-                {/*                onChange={(e) => setAvailabilitySettings({*/}
-                {/*                    ...availabilitySettings,*/}
-                {/*                    isOpen: e.target.checked*/}
-                {/*                })}*/}
-                {/*                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"*/}
-                {/*            />*/}
-                {/*            <span className="text-gray-700">Day is Open for Bookings</span>*/}
-                {/*        </div>*/}
-                {/*        <div>*/}
-                {/*            <label className="block text-sm font-medium text-gray-700 mb-2">*/}
-                {/*                Maximum Bookings*/}
-                {/*            </label>*/}
-                {/*            <input*/}
-                {/*                type="number"*/}
-                {/*                value={availabilitySettings.maxBookings}*/}
-                {/*                onChange={(e) => setAvailabilitySettings({*/}
-                {/*                    ...availabilitySettings,*/}
-                {/*                    maxBookings: e.target.value*/}
-                {/*                })}*/}
-                {/*                min="1"*/}
-                {/*                className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"*/}
-                {/*            />*/}
-                {/*        </div>*/}
-                {/*        <div className="text-sm text-gray-600">*/}
-                {/*            Current Bookings: {availabilitySettings.currentBookings}*/}
-                {/*        </div>*/}
-                {/*        <button*/}
-                {/*            onClick={handleUpdateAvailability}*/}
-                {/*            className="w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"*/}
-                {/*        >*/}
-                {/*            Update Availability*/}
-                {/*        </button>*/}
-                {/*    </div>*/}
-                {/*</div>*/}
+                <AvailabilityForm selectedDate={selectedDate} setUnavailableDates={setUnavailableDates} />
 
-                {/* Bookings Section */}
                 <div>
                     <h2 className="text-xl font-semibold mb-4">Bookings for {selectedDate.toDateString()}</h2>
                     {loading ? (
@@ -247,7 +135,6 @@ const AdminDashboard = () => {
                     )}
                 </div>
 
-                {/* Message Display */}
                 {message && (
                     <div className={`mt-4 p-4 rounded ${
                         message.includes('success')

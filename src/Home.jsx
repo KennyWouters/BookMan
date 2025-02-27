@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Bell, Check, RefreshCw, AlertTriangle } from "lucide-react";
-import {API_URL} from "./utils/api.js";
+import { API_URL } from "./utils/api.js";
 
 function Home() {
     const [dates, setDates] = useState([]);
+    const [availabilityStatuses, setAvailabilityStatuses] = useState([]);
     const [selectedDay, setSelectedDay] = useState("");
     const [phoneNumber, setPhoneNumber] = useState("");
     const [firstName, setFirstName] = useState("");
@@ -40,21 +41,24 @@ function Home() {
     }, []);
 
     useEffect(() => {
-        const testBackendConnection = async () => {
+        const fetchAvailabilityStatuses = async () => {
             try {
-                const response = await fetch(`${API_URL}/api/hello`);
+                const response = await fetch(`${API_URL}/api/admin/availability-status`, {
+                    credentials: 'include'
+                });
                 if (!response.ok) {
-                    throw new Error("Error connecting to backend");
+                    throw new Error("Erreur lors de la récupération des statuts de disponibilité.");
                 }
                 const data = await response.json();
-                setHelloMessage(data.message);
+                setAvailabilityStatuses(data);
             } catch (error) {
-                console.error("Backend connection test failed:", error);
-                setHelloMessage("Failed to connect to backend");
+                console.error("Erreur :", error);
+                setModalMessage("Une erreur s'est produite. Veuillez réessayer.");
+                setShowModal(true);
             }
         };
 
-        testBackendConnection();
+        fetchAvailabilityStatuses();
     }, []);
 
     useEffect(() => {
@@ -197,7 +201,13 @@ function Home() {
                     {dates.map((date, index) => {
                         const day = new Date(date).getDay();
                         const isFirstSaturday = new Date(date).getDate() <= 7 && day === 6;
-                        const isSelectable = [4, 5, 6].includes(day) && !isFirstSaturday;
+                        const availabilityStatus = availabilityStatuses.find(status =>
+                            new Date(status.targetDate).toDateString() === new Date(date).toDateString()
+                        );
+                        const isPastDate = new Date(date) < new Date().setHours(0, 0, 0, 0);
+                        const isSelectable = !isPastDate && (availabilityStatus
+                            ? availabilityStatus.status
+                            : [4, 5, 6].includes(day) && !isFirstSaturday);
 
                         return (
                             <div
@@ -215,6 +225,11 @@ function Home() {
                                         day: "numeric",
                                     })}
                                 </p>
+                                {!isSelectable && availabilityStatus && availabilityStatus.comment && (
+                                    <div className="mt-2 text-sm text-red-600 font-medium">
+                                        {availabilityStatus.comment}
+                                    </div>
+                                )}
                                 {isSelectable && (
                                     <div className="mt-2 text-sm text-blue-600 font-medium">
                                         {/*Disponible*/}
