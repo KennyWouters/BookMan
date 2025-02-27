@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {API_URL} from "../utils/api.js";
 
 const AdminLogin = () => {
     const [firstName, setFirstName] = useState('');
@@ -12,7 +13,7 @@ const AdminLogin = () => {
 
         try {
             // Send a request to your backend to authenticate the admin
-            const response = await fetch('https://book-man-b65d9d654296.herokuapp.com/admin/login', {
+            const response = await fetch(`${API_URL}/admin/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ firstName, password }),

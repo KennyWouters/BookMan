@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Bell, Check, RefreshCw, AlertTriangle } from "lucide-react";
+import {API_URL} from "./utils/api.js";
 
 function Home() {
     const [dates, setDates] = useState([]);
@@ -16,12 +17,13 @@ function Home() {
     const [isLoading, setIsLoading] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [modalMessage, setModalMessage] = useState("");
+    const [helloMessage, setHelloMessage] = useState("");
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchDates = async () => {
             try {
-                const response = await fetch("https://book-man-b65d9d654296.herokuapp.com/api/dates");
+                const response = await fetch(`${API_URL}/api/dates`);
                 if (!response.ok) {
                     throw new Error("Erreur lors de la récupération des dates.");
                 }
@@ -38,10 +40,28 @@ function Home() {
     }, []);
 
     useEffect(() => {
+        const testBackendConnection = async () => {
+            try {
+                const response = await fetch(`${API_URL}/api/hello`);
+                if (!response.ok) {
+                    throw new Error("Error connecting to backend");
+                }
+                const data = await response.json();
+                setHelloMessage(data.message);
+            } catch (error) {
+                console.error("Backend connection test failed:", error);
+                setHelloMessage("Failed to connect to backend");
+            }
+        };
+
+        testBackendConnection();
+    }, []);
+
+    useEffect(() => {
         if (selectedDay) {
             const checkAvailability = async () => {
                 try {
-                    const response = await fetch(`https://book-man-b65d9d654296.herokuapp.com/api/availability/${selectedDay}`);
+                    const response = await fetch(`${API_URL}/api/availability/${selectedDay}`);
                     if (!response.ok) {
                         throw new Error("Erreur lors de la vérification de la disponibilité.");
                     }
@@ -70,7 +90,7 @@ function Home() {
         }
 
         try {
-            const response = await fetch("https://book-man-b65d9d654296.herokuapp.com/api/book", {
+            const response = await fetch(`${API_URL}/api/book`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -116,7 +136,7 @@ function Home() {
         }
 
         try {
-            const response = await fetch("https://book-man-b65d9d654296.herokuapp.com/api/notify", {
+            const response = await fetch(`${API_URL}/api/notify`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -352,6 +372,12 @@ function Home() {
                             )}
                         </button>
                     </form>
+                )}
+
+                {helloMessage && (
+                    <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg">
+                        <p className="text-green-700 font-medium">Backend Status: {helloMessage}</p>
+                    </div>
                 )}
 
                 {/* Admin Login Button */}

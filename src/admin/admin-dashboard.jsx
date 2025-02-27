@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
+import {API_URL} from "../utils/api.js";
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
@@ -30,7 +31,7 @@ const AdminDashboard = () => {
             const formattedDate = `${year}-${month}-${day}`;
 
             // Fetch bookings
-            const bookingsResponse = await fetch(`https://book-man-b65d9d654296.herokuapp.com/api/admin/bookings?day=${formattedDate}`, {
+            const bookingsResponse = await fetch(`${API_URL}/api/admin/bookings?day=${formattedDate}`, {
                 credentials: 'include' // Include cookies in the request
             });
             if (bookingsResponse.ok) {
@@ -39,7 +40,7 @@ const AdminDashboard = () => {
             }
 
             // Fetch availability settings
-            const availabilityResponse = await fetch(`https://book-man-b65d9d654296.herokuapp.com/api/availability/${formattedDate}`, {
+            const availabilityResponse = await fetch(`${API_URL}/api/availability/${formattedDate}`, {
                 credentials: 'include' // Include cookies in the request
             });
             if (availabilityResponse.ok) {
@@ -120,7 +121,7 @@ const AdminDashboard = () => {
     // Handle booking deletion
     const handleDeleteBooking = async (id) => {
         try {
-            const response = await fetch(`https://book-man-b65d9d654296.herokuapp.com/api/bookings/${id}`, {
+            const response = await fetch(`${API_URL}/api/bookings/${id}`, {
                 method: 'DELETE',
             });
 
