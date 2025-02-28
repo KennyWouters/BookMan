@@ -51,7 +51,7 @@ app.use(
 
 // CORS configuration AFTER session
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: 'https://book-man-swart.vercel.app',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
@@ -62,7 +62,7 @@ app.use(cors({
 app.use((req, res, next) => {
     // Add CORS headers to every response
     res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Allow-Origin', 'http://localhost:5173');
+    res.header('Access-Control-Allow-Origin', 'https://book-man-swart.vercel.app');
     
     console.log('\n=== Request Debug ===');
     console.log('URL:', req.url);
