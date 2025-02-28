@@ -198,9 +198,9 @@ function Home() {
                             <span className="block transform transition-all duration-300 hover:scale-[1.01]">
                                 Réservation de l'atelier bois
                             </span>
-                            <span className="block text-blue-700/90 mt-2 transform transition-all duration-300 hover:scale-[1.01]">
+                            {/*<span className="block text-blue-700/90 mt-2 transform transition-all duration-300 hover:scale-[1.01]">
                                 Reservering van de houtwerkplaats
-                            </span>
+                            </span>*/}
                         </h1>
                     </div>
                     <div className="max-w-2xl mx-auto bg-white/50 backdrop-blur-sm rounded-2xl p-4 shadow-sm">
