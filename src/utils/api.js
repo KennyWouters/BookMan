@@ -23,7 +23,23 @@ const checkServerAvailability = async () => {
             method: 'GET',
             mode: 'cors',
             credentials: 'include',
+            headers: {
+                'Accept': 'application/json',
+                'Origin': window.location.origin
+            }
         });
+
+        console.log('Server check response:', {
+            status: response.status,
+            statusText: response.statusText,
+            headers: Object.fromEntries(response.headers.entries())
+        });
+
+        if (response.status === 503) {
+            console.warn('Server is in sleep mode, attempting to wake it...');
+            return false;
+        }
+
         return response.ok;
     } catch (error) {
         console.error('Server availability check failed:', error);
@@ -33,9 +49,18 @@ const checkServerAvailability = async () => {
 
 // Helper function for API calls with proper CORS settings
 export const fetchWithCors = async (endpoint, options = {}, retryCount = 3) => {
-    // First check if server is available
-    const isServerAvailable = await checkServerAvailability();
-    if (!isServerAvailable) {
+    let serverAvailable = await checkServerAvailability();
+    let retryAttempt = 0;
+
+    // If server is not available initially, try to wake it up
+    while (!serverAvailable && retryAttempt < 2) {
+        console.log(`Attempting to wake up server (attempt ${retryAttempt + 1}/2)...`);
+        await new Promise(resolve => setTimeout(resolve, 3000)); // Wait 3 seconds
+        serverAvailable = await checkServerAvailability();
+        retryAttempt++;
+    }
+
+    if (!serverAvailable) {
         throw new Error('Server is currently unavailable. Please try again later.');
     }
 
@@ -45,6 +70,7 @@ export const fetchWithCors = async (endpoint, options = {}, retryCount = 3) => {
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
+            'Origin': window.location.origin
         },
     };
 
@@ -64,7 +90,6 @@ export const fetchWithCors = async (endpoint, options = {}, retryCount = 3) => {
         try {
             const response = await fetch(`${API_URL}${endpoint}`, finalOptions);
             
-            // Log response details for debugging
             console.debug('API Response:', {
                 status: response.status,
                 statusText: response.statusText,
@@ -75,7 +100,7 @@ export const fetchWithCors = async (endpoint, options = {}, retryCount = 3) => {
             if (response.status === 503) {
                 console.warn('Service temporarily unavailable, retrying...');
                 lastError = new Error('Service temporarily unavailable');
-                await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, attempts))); // Exponential backoff
+                await new Promise(resolve => setTimeout(resolve, 3000 + (attempts * 2000))); // Progressive delay
                 attempts++;
                 continue;
             }
@@ -92,7 +117,7 @@ export const fetchWithCors = async (endpoint, options = {}, retryCount = 3) => {
             lastError = error;
 
             if (attempts < retryCount - 1) {
-                await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, attempts))); // Exponential backoff
+                await new Promise(resolve => setTimeout(resolve, 3000 + (attempts * 2000))); // Progressive delay
                 attempts++;
                 continue;
             }
@@ -100,7 +125,6 @@ export const fetchWithCors = async (endpoint, options = {}, retryCount = 3) => {
         }
     }
 
-    // If we get here, all retries failed
     console.error('All retry attempts failed:', lastError);
     throw new Error(`Failed to fetch after ${retryCount} attempts: ${lastError.message}`);
 };
