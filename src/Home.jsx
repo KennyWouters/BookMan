@@ -15,25 +15,27 @@ function Home() {
     const [isFullyBooked, setIsFullyBooked] = useState(false);
     const [notificationEmail, setNotificationEmail] = useState("");
     const [notificationMessage, setNotificationMessage] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [modalMessage, setModalMessage] = useState("");
     const [helloMessage, setHelloMessage] = useState("");
+    const [error, setError] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchDates = async () => {
+            setIsLoading(true);
+            setError(null);
             try {
-                const response = await fetch(`${API_URL}/api/dates`);
-                if (!response.ok) {
-                    throw new Error("Erreur lors de la récupération des dates.");
-                }
-                const data = await response.json();
-                setDates(data);
+                console.log('Fetching dates from:', `${API_URL}/api/dates`);
+                const response = await fetchWithCors('/api/dates');
+                console.log('Dates response:', response);
+                setDates(response);
             } catch (error) {
-                console.error("Erreur :", error);
-                setModalMessage("Une erreur s'est produite. Veuillez réessayer.");
-                setShowModal(true);
+                console.error("Error fetching dates:", error);
+                setError(error.message);
+            } finally {
+                setIsLoading(false);
             }
         };
 
@@ -43,18 +45,13 @@ function Home() {
     useEffect(() => {
         const fetchAvailabilityStatuses = async () => {
             try {
-                const response = await fetch(`${API_URL}/api/admin/availability-status`, {
-                    credentials: 'include'
-                });
-                if (!response.ok) {
-                    throw new Error("Erreur lors de la récupération des statuts de disponibilité.");
-                }
-                const data = await response.json();
-                setAvailabilityStatuses(data);
+                console.log('Fetching availability statuses...');
+                const response = await fetchWithCors('/api/admin/availability-status');
+                console.log('Availability response:', response);
+                setAvailabilityStatuses(response);
             } catch (error) {
-                console.error("Erreur :", error);
-                setModalMessage("Une erreur s'est produite. Veuillez réessayer.");
-                setShowModal(true);
+                console.error("Error fetching availability:", error);
+                setError(error.message);
             }
         };
 
@@ -188,6 +185,34 @@ function Home() {
         })
         : "";
 
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+                <div className="text-center">
+                    <h2 className="text-2xl font-semibold text-gray-900 mb-4">Chargement...</h2>
+                    <p className="text-gray-600">Veuillez patienter pendant le chargement des données.</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+                <div className="text-center">
+                    <h2 className="text-2xl font-semibold text-red-600 mb-4">Une erreur s'est produite</h2>
+                    <p className="text-gray-600 mb-4">{error}</p>
+                    <button 
+                        onClick={() => window.location.reload()} 
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                        Réessayer
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-5xl mx-auto space-y-12">
@@ -198,9 +223,9 @@ function Home() {
                             <span className="block transform transition-all duration-300 hover:scale-[1.01]">
                                 Réservation de l'atelier bois
                             </span>
-                            {/*<span className="block text-blue-700/90 mt-2 transform transition-all duration-300 hover:scale-[1.01]">
+                            <span className="block text-blue-700/90 mt-2 transform transition-all duration-300 hover:scale-[1.01]">
                                 Reservering van de houtwerkplaats
-                            </span>*/}
+                            </span>
                         </h1>
                     </div>
                     <div className="max-w-2xl mx-auto bg-white/50 backdrop-blur-sm rounded-2xl p-4 shadow-sm">

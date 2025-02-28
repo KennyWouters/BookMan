@@ -2,9 +2,15 @@
 const PRODUCTION_API = 'https://book-man-b65d9d654296.herokuapp.com';
 const DEVELOPMENT_API = 'http://localhost:3001';
 
-export const API_URL = process.env.NODE_ENV === 'production' 
+// Debug environment
+console.log('Current environment:', process.env.NODE_ENV);
+console.log('VITE_NODE_ENV:', import.meta.env.VITE_NODE_ENV);
+
+export const API_URL = import.meta.env.PROD 
     ? PRODUCTION_API
     : DEVELOPMENT_API;
+
+console.log('Using API URL:', API_URL);
 
 // Helper function to check if the server is available
 const checkServerAvailability = async () => {
