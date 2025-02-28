@@ -165,14 +165,14 @@ function Home() {
 
     const Modal = ({ message, onClose }) => (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-            <div className="bg-white w-96 p-6 rounded-2xl shadow-2xl border border-gray-200 text-center">
-                <div className="flex justify-center mb-4">
-                    <AlertTriangle className="text-yellow-500" size={48} />
+            <div className="bg-white w-96 p-8 rounded-2xl shadow-2xl border border-gray-200 transform transition-all duration-300 scale-100">
+                <div className="flex justify-center mb-6">
+                    <AlertTriangle className="text-yellow-500 w-12 h-12" />
                 </div>
-                <p className="text-lg font-medium text-gray-700 mb-6">{message}</p>
+                <p className="text-lg font-medium text-gray-700 mb-8">{message}</p>
                 <button
                     onClick={onClose}
-                    className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    className="w-full py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-300 transform hover:scale-[1.02] focus:ring-4 focus:ring-blue-200"
                 >
                     Fermer
                 </button>
@@ -189,15 +189,34 @@ function Home() {
         : "";
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-4xl mx-auto space-y-8">
-                <div className="text-center">
-                    <h1 className="text-4xl font-extrabold text-gray-900 mb-4">Réservation de l'atelier bois</h1>
-                    <p className="text-xl text-gray-600">Sélectionnez votre date et heure</p>
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-5xl mx-auto space-y-12">
+                {/* Header Section */}
+                <div className="text-center space-y-6 md:space-y-8">
+                    <div className="space-y-2">
+                        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-800 tracking-tight">
+                            <span className="block transform transition-all duration-300 hover:scale-[1.01]">
+                                Réservation de l'atelier bois
+                            </span>
+                            <span className="block text-blue-700/90 mt-2 transform transition-all duration-300 hover:scale-[1.01]">
+                                Reservering van de houtwerkplaats
+                            </span>
+                        </h1>
+                    </div>
+                    <div className="max-w-2xl mx-auto bg-white/50 backdrop-blur-sm rounded-2xl p-4 shadow-sm">
+                        <p className="text-lg sm:text-xl text-gray-600">
+                            <span className="block font-medium text-gray-700">
+                                Sélectionnez une date disponible et réservez votre créneau
+                            </span>
+                            <span className="block text-gray-600 mt-1">
+                                Kies een beschikbare datum en reserveer uw tijdslot
+                            </span>
+                        </p>
+                    </div>
                 </div>
 
                 {/* Date Selection Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-2 sm:gap-3">
                     {dates.map((date, index) => {
                         const day = new Date(date).getDay();
                         const isFirstSaturday = new Date(date).getDate() <= 7 && day === 6;
@@ -212,196 +231,213 @@ function Home() {
                         return (
                             <div
                                 key={index}
-                                className={`p-4 rounded-xl shadow-md text-center transition-all duration-300 ${
-                                    isSelectable
-                                        ? "bg-white hover:bg-blue-50 hover:shadow-lg cursor-pointer border-2 border-transparent hover:border-blue-500"
-                                        : "bg-gray-100 opacity-60 cursor-not-allowed"
-                                }`}
                                 onClick={() => isSelectable && setSelectedDay(date)}
+                                className={`
+                                    relative aspect-square flex flex-col items-center justify-center p-2 sm:p-3 rounded-lg sm:rounded-xl text-center transition-all duration-300
+                                    ${isSelectable
+                                        ? "bg-white shadow-sm hover:shadow-md cursor-pointer border border-transparent hover:border-blue-500 transform hover:-translate-y-1"
+                                        : "bg-gray-50 cursor-not-allowed"}
+                                `}
                             >
-                                <p className="text-lg font-semibold text-gray-800">
+                                <p className={`text-sm sm:text-base font-semibold ${isSelectable ? 'text-gray-800' : 'text-gray-400'}`}>
                                     {new Date(date).toLocaleDateString("fr-FR", {
                                         weekday: "short",
-                                        day: "numeric",
-                                    })}
+                                    }).slice(0, 3)}
+                                </p>
+                                <p className={`text-lg sm:text-xl font-bold ${isSelectable ? 'text-gray-900' : 'text-gray-400'}`}>
+                                    {new Date(date).getDate()}
                                 </p>
                                 {!isSelectable && availabilityStatus && availabilityStatus.comment && (
-                                    <div className="mt-2 text-sm text-red-600 font-medium">
-                                        {availabilityStatus.comment}
+                                    <div className="absolute bottom-1 left-1 right-1">
+                                        <div className="text-xs text-red-500 font-medium truncate">
+                                            {availabilityStatus.comment}
+                                        </div>
                                     </div>
                                 )}
-                                {isSelectable && (
-                                    <div className="mt-2 text-sm text-blue-600 font-medium">
-                                        {/*Disponible*/}
-                                    </div>
+                                {isSelectable && selectedDay === date && (
+                                    <div className="absolute inset-0 border-2 border-blue-500 rounded-lg sm:rounded-xl"></div>
                                 )}
                             </div>
                         );
                     })}
                 </div>
 
-                {/* Fully Booked Notification */}
-                {selectedDay && isFullyBooked && (
-                    <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg">
-                        <div className="flex items-center">
-                            <Bell className="text-yellow-500 mr-3" />
-                            <p className="text-yellow-800 font-semibold">
-                                Ce jour est complet. Souhaitez-vous être notifié si une place se libère ?
+                {/* No Dates Available Message */}
+                {dates.every(date => {
+                    const day = new Date(date).getDay();
+                    const isFirstSaturday = new Date(date).getDate() <= 7 && day === 6;
+                    const availabilityStatus = availabilityStatuses.find(status =>
+                        new Date(status.targetDate).toDateString() === new Date(date).toDateString()
+                    );
+                    const isPastDate = new Date(date) < new Date().setHours(0, 0, 0, 0);
+                    return isPastDate || !(availabilityStatus ? availabilityStatus.status : [4, 5, 6].includes(day) && !isFirstSaturday);
+                }) && (
+                    <div className="max-w-2xl mx-auto bg-red-50 rounded-xl p-4 border border-red-100 shadow-sm">
+                        <div className="flex items-center justify-center">
+                            <AlertTriangle className="w-5 h-5 text-red-500 mr-2" />
+                            <p className="text-center">
+                                <span className="block text-base font-medium text-red-600">
+                                    Aucune date n'est disponible pour une réservation pour le moment
+                                </span>
+                                <span className="block text-sm text-red-500 mt-1">
+                                    Er zijn momenteel geen data beschikbaar voor reservering
+                                </span>
                             </p>
                         </div>
-                        <form onSubmit={handleNotificationSubmit} className="mt-4 space-y-4">
-                            <input
-                                type="email"
-                                value={notificationEmail}
-                                onChange={(e) => setNotificationEmail(e.target.value)}
-                                placeholder="Votre email"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                required
-                            />
-                            <button
-                                type="submit"
-                                className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
-                            >
-                                <Bell className="mr-2" size={20} />
-                                Me notifier
-                            </button>
-                            {notificationMessage && (
-                                <p className="text-green-600 text-center mt-2">{notificationMessage}</p>
-                            )}
-                        </form>
+                    </div>
+                )}
+
+                {/* Notification Section */}
+                {selectedDay && isFullyBooked && (
+                    <div className="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-xl shadow-sm">
+                        <div className="flex items-center space-x-4">
+                            <Bell className="text-yellow-500 w-6 h-6 flex-shrink-0" />
+                            <div className="flex-1">
+                                <p className="text-yellow-800 font-semibold mb-4">
+                                    Ce jour est complet. Souhaitez-vous être notifié si une place se libère ?
+                                </p>
+                                <form onSubmit={handleNotificationSubmit} className="space-y-4">
+                                    <input
+                                        type="email"
+                                        value={notificationEmail}
+                                        onChange={(e) => setNotificationEmail(e.target.value)}
+                                        placeholder="Votre email"
+                                        className="w-full px-4 py-3 border border-yellow-200 rounded-xl focus:ring-2 focus:ring-yellow-200 focus:border-yellow-400 bg-white"
+                                        required
+                                    />
+                                    <button
+                                        type="submit"
+                                        className="w-full py-3 bg-yellow-500 text-white rounded-xl hover:bg-yellow-600 transition-all duration-300 flex items-center justify-center space-x-2"
+                                    >
+                                        <Bell className="w-5 h-5" />
+                                        <span>Me notifier</span>
+                                    </button>
+                                </form>
+                                {notificationMessage && (
+                                    <p className="mt-4 text-yellow-700 text-center">{notificationMessage}</p>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 )}
 
                 {/* Booking Form */}
                 {selectedDay && !isFullyBooked && (
-                    <form
-                        onSubmit={handleSubmit}
-                        className="bg-white shadow-2xl rounded-2xl border border-gray-200 p-8 space-y-6"
-                    >
-                        <div className="grid md:grid-cols-2 gap-4">
-                            <div>
-                                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
-                                    Prénom
+                    <div className="bg-white shadow-2xl rounded-2xl border border-gray-100 p-8">
+                        <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                            Réserver pour le {new Date(selectedDay).toLocaleDateString("fr-FR", {
+                                weekday: "long",
+                                day: "numeric",
+                                month: "long"
+                            })}
+                        </h2>
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            <div className="grid md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        Prénom
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={firstName}
+                                        onChange={(e) => setFirstName(e.target.value)}
+                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
+                                        required
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        Nom
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={lastName}
+                                        onChange={(e) => setLastName(e.target.value)}
+                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-gray-700">
+                                    Téléphone
                                 </label>
                                 <input
-                                    id="firstName"
-                                    type="text"
-                                    value={firstName}
-                                    onChange={(e) => setFirstName(e.target.value)}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    type="tel"
+                                    value={phoneNumber}
+                                    onChange={(e) => setPhoneNumber(e.target.value)}
+                                    placeholder="0612345678"
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
                                     required
                                 />
                             </div>
-                            <div>
-                                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
-                                    Nom de famille
-                                </label>
-                                <input
-                                    id="lastName"
-                                    type="text"
-                                    value={lastName}
-                                    onChange={(e) => setLastName(e.target.value)}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    required
-                                />
+
+                            <div className="grid md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        Heure de début
+                                    </label>
+                                    <select
+                                        value={startHour}
+                                        onChange={(e) => setStartHour(parseInt(e.target.value))}
+                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
+                                        required
+                                    >
+                                        {Array.from({ length: 6 }, (_, i) => (
+                                            <option key={i} value={14 + i}>
+                                                {14 + i}:00
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        Heure de fin
+                                    </label>
+                                    <select
+                                        value={endHour}
+                                        onChange={(e) => setEndHour(parseInt(e.target.value))}
+                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
+                                        required
+                                    >
+                                        {Array.from({ length: 6 }, (_, i) => (
+                                            <option key={i} value={14 + i}>
+                                                {14 + i}:00
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
                             </div>
-                        </div>
 
-                        <div>
-                            <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-2">
-                                Numéro de téléphone
-                            </label>
-                            <input
-                                id="phoneNumber"
-                                type="tel"
-                                value={phoneNumber}
-                                onChange={(e) => setPhoneNumber(e.target.value)}
-                                placeholder="Ex: 0612345678"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                required
-                            />
-                        </div>
-
-                        <div>
-                            <label htmlFor="selectedDay" className="block text-sm font-medium text-gray-700 mb-2">
-                                Jour sélectionné
-                            </label>
-                            <input
-                                id="selectedDay"
-                                type="text"
-                                value={formattedSelectedDay}
-                                readOnly
-                                className="w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg cursor-not-allowed"
-                                required
-                            />
-                        </div>
-
-                        <div className="grid md:grid-cols-2 gap-4">
-                            <div>
-                                <label htmlFor="startHour" className="block text-sm font-medium text-gray-700 mb-2">
-                                    Heure de début
-                                </label>
-                                <select
-                                    id="startHour"
-                                    value={startHour}
-                                    onChange={(e) => setStartHour(parseInt(e.target.value))}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    required
-                                >
-                                    {Array.from({ length: 6 }, (_, i) => (
-                                        <option key={i} value={14 + i}>
-                                            {14 + i}:00
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div>
-                                <label htmlFor="endHour" className="block text-sm font-medium text-gray-700 mb-2">
-                                    Heure de fin
-                                </label>
-                                <select
-                                    id="endHour"
-                                    value={endHour}
-                                    onChange={(e) => setEndHour(parseInt(e.target.value))}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    required
-                                >
-                                    {Array.from({ length: 6 }, (_, i) => (
-                                        <option key={i} value={14 + i}>
-                                            {14 + i}:00
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
-                        >
-                            {isLoading ? (
-                                <><RefreshCw className="mr-2 animate-spin" /> Chargement...</>
-                            ) : (
-                                <><Check className="mr-2" /> Réserver</>
-                            )}
-                        </button>
-                    </form>
-                )}
-
-                {helloMessage && (
-                    <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg">
-                        <p className="text-green-700 font-medium">Backend Status: {helloMessage}</p>
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className="w-full py-4 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-300 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02]"
+                            >
+                                {isLoading ? (
+                                    <>
+                                        <RefreshCw className="w-5 h-5 animate-spin" />
+                                        <span>Chargement...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Check className="w-5 h-5" />
+                                        <span>Réserver</span>
+                                    </>
+                                )}
+                            </button>
+                        </form>
                     </div>
                 )}
 
-                {/* Admin Login Button */}
-                <div className="text-center mt-8">
+                {/* Admin Login Link - Moved to bottom right */}
+                <div className="fixed bottom-8 right-8">
                     <button
                         onClick={() => navigate("/admin/login")}
-                        className="py-2 px-4 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                        className="px-6 py-3 bg-gray-600/90 backdrop-blur-sm text-white rounded-xl hover:bg-gray-700 transition-all duration-300 transform hover:scale-[1.02] focus:ring-4 focus:ring-gray-200 shadow-lg hover:shadow-xl"
                     >
-                        Admin Login
+                        Espace administrateur
                     </button>
                 </div>
             </div>

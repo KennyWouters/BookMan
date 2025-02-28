@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
+import './styles/Calendar.css';
 import { API_URL } from "../utils/api.js";
 import AvailabilityForm from "./components/AvailabilityForm.jsx";
+import BookingsList from "./components/BookingsList.jsx";
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
@@ -57,7 +59,14 @@ const AdminDashboard = () => {
             });
             if (availabilityResponse.ok) {
                 const availabilityData = await availabilityResponse.json();
-                setIsAvailable(availabilityData.status);
+                if (availabilityData.id) {
+                    setIsAvailable(availabilityData.status);
+                } else {
+                    const dayOfWeek = date.getDay();
+                    const isFirstSaturday = date.getDate() <= 7 && dayOfWeek === 6;
+                    const defaultAvailable = [4, 5, 6].includes(dayOfWeek) && !isFirstSaturday;
+                    setIsAvailable(defaultAvailable);
+                }
             } else if (availabilityResponse.status === 403) {
                 setMessage('Session expired. Please log in again.');
                 handleLogout();
@@ -100,6 +109,12 @@ const AdminDashboard = () => {
         }
     };
 
+    const handleAvailabilityUpdate = (newStatus) => {
+        setIsAvailable(newStatus);
+        // Optionally refresh all data
+        fetchData(selectedDate);
+    };
+
     useEffect(() => {
         fetchData(selectedDate);
     }, [selectedDate]);
@@ -117,44 +132,88 @@ const AdminDashboard = () => {
                     </button>
                 </div>
 
-                <div className="mb-6">
-                    <h2 className="text-xl font-semibold mb-4">Select a Date</h2>
-                    <Calendar
-                        onChange={handleDateChange}
-                        value={selectedDate}
-                        className="mx-auto"
-                    />
+                <div className="mb-8 bg-white rounded-xl shadow-sm p-6">
+                    <div className="flex flex-col items-center">
+                        <Calendar
+                            onChange={handleDateChange}
+                            value={selectedDate}
+                            className="mx-auto mb-4 border-0 shadow-none"
+                            tileClassName="rounded-full hover:bg-blue-100 transition-colors"
+                        />
+                        <div className="w-full space-y-4">
+                            <h2 className="text-xl font-semibold text-gray-800 text-center mt-4 px-4 py-2 bg-blue-50 rounded-full">
+                                {selectedDate.toLocaleDateString('fr-FR', {
+                                    weekday: 'long',
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                })}
+                            </h2>
+                            
+                            {/* Status Fields */}
+                            <div className="grid grid-cols-2 gap-4">
+                                {/* Reservations Count */}
+                                <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
+                                    <p className="text-sm text-gray-600 mb-1">Réservations</p>
+                                    <div className="flex items-center justify-center space-x-2">
+                                        <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span className="text-2xl font-bold text-gray-900">
+                                            {loading ? '-' : bookings.length}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Availability Status */}
+                                <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
+                                    <p className="text-sm text-gray-600 mb-1">Disponibilité</p>
+                                    <div className="flex items-center justify-center space-x-2">
+                                        {loading ? (
+                                            <span className="text-2xl font-bold text-gray-400">-</span>
+                                        ) : (
+                                            <>
+                                                <svg 
+                                                    className={`w-5 h-5 ${isAvailable ? 'text-green-500' : 'text-red-500'}`} 
+                                                    fill="none" 
+                                                    stroke="currentColor" 
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    {isAvailable ? (
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    ) : (
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    )}
+                                                </svg>
+                                                <span className={`text-2xl font-bold ${isAvailable ? 'text-green-600' : 'text-red-600'}`}>
+                                                    {isAvailable ? 'Disponible' : 'Indisponible'}
+                                                </span>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <AvailabilityForm selectedDate={selectedDate} setUnavailableDates={setUnavailableDates} />
-
-                <div>
-                    <h2 className="text-xl font-semibold mb-4">Bookings for {selectedDate.toDateString()}</h2>
-                    {loading ? (
-                        <p className="text-center text-gray-500">Loading...</p>
-                    ) : bookings.length > 0 ? (
-                        <ul className="space-y-4">
-                            {bookings.map((booking) => (
-                                <li key={booking.id} className="p-4 bg-gray-50 rounded-lg shadow">
-                                    <strong className="block text-lg font-semibold">
-                                        {booking.first_name} {booking.last_name}
-                                    </strong>
-                                    <p className="text-gray-700">Phone: {booking.phone_number}</p>
-                                    <p className="text-gray-700">
-                                        Time: {booking.start_hour}:00 - {booking.end_hour}:00
-                                    </p>
-                                    <button
-                                        onClick={() => handleDeleteBooking(booking.id)}
-                                        className="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-                                    >
-                                        Delete
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <p className="text-center text-gray-500">No bookings for this date.</p>
-                    )}
+                <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <AvailabilityForm 
+                            selectedDate={selectedDate} 
+                            setUnavailableDates={setUnavailableDates}
+                            onAvailabilityUpdate={handleAvailabilityUpdate}
+                        />
+                    </div>
+                    <div>
+                        <BookingsList
+                            selectedDate={selectedDate}
+                            bookings={bookings}
+                            loading={loading}
+                            setBookings={setBookings}
+                            setMessage={setMessage}
+                        />
+                    </div>
                 </div>
 
                 {message && (
