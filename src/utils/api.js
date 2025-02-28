@@ -6,8 +6,29 @@ export const API_URL = process.env.NODE_ENV === 'production'
     ? PRODUCTION_API
     : DEVELOPMENT_API;
 
+// Helper function to check if the server is available
+const checkServerAvailability = async () => {
+    try {
+        const response = await fetch(`${API_URL}/api/hello`, {
+            method: 'GET',
+            mode: 'cors',
+            credentials: 'include',
+        });
+        return response.ok;
+    } catch (error) {
+        console.error('Server availability check failed:', error);
+        return false;
+    }
+};
+
 // Helper function for API calls with proper CORS settings
 export const fetchWithCors = async (endpoint, options = {}, retryCount = 3) => {
+    // First check if server is available
+    const isServerAvailable = await checkServerAvailability();
+    if (!isServerAvailable) {
+        throw new Error('Server is currently unavailable. Please try again later.');
+    }
+
     const defaultOptions = {
         mode: 'cors',
         credentials: 'include',
@@ -33,11 +54,18 @@ export const fetchWithCors = async (endpoint, options = {}, retryCount = 3) => {
         try {
             const response = await fetch(`${API_URL}${endpoint}`, finalOptions);
             
-            // Handle various error status codes
+            // Log response details for debugging
+            console.debug('API Response:', {
+                status: response.status,
+                statusText: response.statusText,
+                headers: Object.fromEntries(response.headers.entries()),
+                url: response.url,
+            });
+
             if (response.status === 503) {
                 console.warn('Service temporarily unavailable, retrying...');
                 lastError = new Error('Service temporarily unavailable');
-                await new Promise(resolve => setTimeout(resolve, 1000 * (attempts + 1))); // Exponential backoff
+                await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, attempts))); // Exponential backoff
                 attempts++;
                 continue;
             }
@@ -47,13 +75,14 @@ export const fetchWithCors = async (endpoint, options = {}, retryCount = 3) => {
                 throw new Error(errorData.error || `API call failed: ${response.status} ${response.statusText}`);
             }
 
-            return await response.json();
+            const data = await response.json();
+            return data;
         } catch (error) {
             console.error(`API call failed (attempt ${attempts + 1}/${retryCount}):`, error);
             lastError = error;
 
             if (attempts < retryCount - 1) {
-                await new Promise(resolve => setTimeout(resolve, 1000 * (attempts + 1))); // Exponential backoff
+                await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, attempts))); // Exponential backoff
                 attempts++;
                 continue;
             }
