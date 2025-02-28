@@ -199,7 +199,7 @@ function Home() {
                                 Réservation de l'atelier bois
                             </span>
                             <span className="block text-blue-700/90 mt-2 transform transition-all duration-300 hover:scale-[1.01]">
-                                Reservering van de houtwerkplaats
+                                
                             </span>
                         </h1>
                     </div>
