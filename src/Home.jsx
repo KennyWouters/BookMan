@@ -45,7 +45,7 @@ function Home() {
         const fetchAvailabilityStatuses = async () => {
             try {
                 console.log('Fetching availability statuses...');
-                const response = await fetchWithCors('/api/admin/availability-status');
+                const response = await fetch('/api/admin/availability-status');
                 console.log('Availability response:', response);
                 setAvailabilityStatuses(response);
             } catch (error) {
