@@ -1,11 +1,15 @@
 // API URL configuration
+const PRODUCTION_API = 'https://book-man-b65d9d654296.herokuapp.com';
+const DEVELOPMENT_API = 'http://localhost:3001';
+
 export const API_URL = process.env.NODE_ENV === 'production' 
-    ? 'https://book-man-b65d9d654296.herokuapp.com'  // Replace with your actual production API URL
-    : 'http://localhost:3001';
+    ? PRODUCTION_API
+    : DEVELOPMENT_API;
 
 // Helper function for API calls with proper CORS settings
 export const fetchWithCors = async (endpoint, options = {}, retryCount = 3) => {
     const defaultOptions = {
+        mode: 'cors',
         credentials: 'include',
         headers: {
             'Content-Type': 'application/json',
@@ -23,33 +27,41 @@ export const fetchWithCors = async (endpoint, options = {}, retryCount = 3) => {
     };
 
     let lastError;
-    for (let i = 0; i < retryCount; i++) {
+    let attempts = 0;
+
+    while (attempts < retryCount) {
         try {
             const response = await fetch(`${API_URL}${endpoint}`, finalOptions);
             
-            // Handle 503 Service Unavailable with retry
+            // Handle various error status codes
             if (response.status === 503) {
+                console.warn('Service temporarily unavailable, retrying...');
                 lastError = new Error('Service temporarily unavailable');
-                // Wait for 1 second before retrying
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                await new Promise(resolve => setTimeout(resolve, 1000 * (attempts + 1))); // Exponential backoff
+                attempts++;
                 continue;
             }
 
             if (!response.ok) {
-                throw new Error(`API call failed: ${response.status} ${response.statusText}`);
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || `API call failed: ${response.status} ${response.statusText}`);
             }
 
             return await response.json();
         } catch (error) {
+            console.error(`API call failed (attempt ${attempts + 1}/${retryCount}):`, error);
             lastError = error;
-            if (i < retryCount - 1) {
-                // Wait for 1 second before retrying
-                await new Promise(resolve => setTimeout(resolve, 1000));
+
+            if (attempts < retryCount - 1) {
+                await new Promise(resolve => setTimeout(resolve, 1000 * (attempts + 1))); // Exponential backoff
+                attempts++;
                 continue;
             }
+            break;
         }
     }
 
     // If we get here, all retries failed
-    throw lastError;
+    console.error('All retry attempts failed:', lastError);
+    throw new Error(`Failed to fetch after ${retryCount} attempts: ${lastError.message}`);
 };
