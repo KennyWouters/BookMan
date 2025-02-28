@@ -18,7 +18,7 @@ function Home() {
     const [isLoading, setIsLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [modalMessage, setModalMessage] = useState("");
-    const [helloMessage, setHelloMessage] = useState("");
+    /*const [helloMessage, setHelloMessage] = useState("");*/
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 

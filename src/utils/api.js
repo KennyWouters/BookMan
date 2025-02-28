@@ -19,26 +19,34 @@ console.log('Using API URL:', API_URL);
 // Helper function to check if the server is available
 const checkServerAvailability = async () => {
     try {
+        console.log('Checking server availability...');
+        console.log('Origin:', window.location.origin);
+        
         const response = await fetch(`${API_URL}/api/hello`, {
             method: 'GET',
             mode: 'cors',
             credentials: 'include',
             headers: {
                 'Accept': 'application/json',
-                'Origin': window.location.origin
+                'Origin': window.location.origin,
+                'Content-Type': 'application/json'
             }
         });
 
         console.log('Server check response:', {
             status: response.status,
             statusText: response.statusText,
-            headers: Object.fromEntries(response.headers.entries())
+            headers: Object.fromEntries(response.headers.entries()),
+            url: response.url
         });
 
         if (response.status === 503) {
             console.warn('Server is in sleep mode, attempting to wake it...');
             return false;
         }
+
+        const data = await response.json();
+        console.log('Server response data:', data);
 
         return response.ok;
     } catch (error) {
@@ -52,10 +60,9 @@ export const fetchWithCors = async (endpoint, options = {}, retryCount = 3) => {
     let serverAvailable = await checkServerAvailability();
     let retryAttempt = 0;
 
-    // If server is not available initially, try to wake it up
     while (!serverAvailable && retryAttempt < 2) {
         console.log(`Attempting to wake up server (attempt ${retryAttempt + 1}/2)...`);
-        await new Promise(resolve => setTimeout(resolve, 3000)); // Wait 3 seconds
+        await new Promise(resolve => setTimeout(resolve, 3000));
         serverAvailable = await checkServerAvailability();
         retryAttempt++;
     }
@@ -71,7 +78,7 @@ export const fetchWithCors = async (endpoint, options = {}, retryCount = 3) => {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
             'Origin': window.location.origin
-        },
+        }
     };
 
     const finalOptions = {
@@ -79,9 +86,14 @@ export const fetchWithCors = async (endpoint, options = {}, retryCount = 3) => {
         ...options,
         headers: {
             ...defaultOptions.headers,
-            ...options.headers,
-        },
+            ...options.headers
+        }
     };
+
+    console.log('Making API request:', {
+        url: `${API_URL}${endpoint}`,
+        options: finalOptions
+    });
 
     let lastError;
     let attempts = 0;
