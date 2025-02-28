@@ -18,7 +18,6 @@ function Home() {
     const [isLoading, setIsLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [modalMessage, setModalMessage] = useState("");
-    /*const [helloMessage, setHelloMessage] = useState("");*/
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
@@ -224,7 +223,7 @@ function Home() {
                                 Réservation de l'atelier bois
                             </span>
                             <span className="block text-blue-700/90 mt-2 transform transition-all duration-300 hover:scale-[1.01]">
-                                Reservering van de houtwerkplaats
+                                
                             </span>
                         </h1>
                     </div>

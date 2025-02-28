@@ -54,6 +54,8 @@ const allowedOrigins = [
     'https://book-man-swart.vercel.app',
     'https://book-man-b65d9d654296.herokuapp.com',
     'http://localhost:5173',
+    'http://localhost:5174',
+
     'http://localhost:3000',
     'http://localhost:3001'
 ];
@@ -107,10 +109,10 @@ app.use((req, res, next) => {
 });
 
 // Add the hello endpoint back
-app.get("/api/hello", (req, res) => {
+/*app.get("/api/hello", (req, res) => {
     res.set('Content-Type', 'application/json');
     res.json({ message: "Hello, World!" });
-});
+});*/
 
 // Debug middleware to log all requests
 app.use((req, res, next) => {
