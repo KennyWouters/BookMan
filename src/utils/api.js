@@ -56,7 +56,7 @@ const checkServerAvailability = async () => {
 };
 
 // Helper function for API calls with proper CORS settings
-export const fetchWithCors = async (endpoint, options = {}, retryCount = 3) => {
+export async function fetchWithCors(endpoint, options = {}, retryCount = 3) {
     let serverAvailable = await checkServerAvailability();
     let retryAttempt = 0;
 
@@ -139,4 +139,4 @@ export const fetchWithCors = async (endpoint, options = {}, retryCount = 3) => {
 
     console.error('All retry attempts failed:', lastError);
     throw new Error(`Failed to fetch after ${retryCount} attempts: ${lastError.message}`);
-};
+}
