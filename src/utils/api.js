@@ -1,7 +1,6 @@
 // API URL configuration
 const PRODUCTION_API = 'https://book-man-b65d9d654296.herokuapp.com';
 const DEVELOPMENT_API = 'http://localhost:3001';
-
 // Debug environment
 console.log('Current environment:', process.env.NODE_ENV);
 console.log('VITE_NODE_ENV:', import.meta.env.VITE_NODE_ENV);
@@ -60,7 +59,7 @@ const checkServerAvailability = async () => {
         console.log('Checking server availability...');
         console.log('Current origin:', window.location.origin);
         console.log('Checking endpoint:', `${API_URL}/api/hello`);
-        
+
         const response = await fetch(`${API_URL}/api/hello`, {
             method: 'GET',
             mode: 'cors',
@@ -98,27 +97,116 @@ const checkServerAvailability = async () => {
 };
 
 // Helper function for API calls with proper CORS settings
-export async function fetchWithCors(endpoint, options = {}, retryCount = 3) {
-    console.log('fetchWithCors called with:', {
-        endpoint,
-        API_URL,
-        fullUrl: `${API_URL}${endpoint}`
-    });
+// export async function fetchWithCors(endpoint, options = {}, retryCount = 3) {
+//     console.log('fetchWithCors called with:', {
+//         endpoint,
+//         API_URL,
+//         fullUrl: `${API_URL}${endpoint}`
+//     });
+//
+//     let serverAvailable = await checkServerAvailability();
+//     let retryAttempt = 0;
+//
+//     while (!serverAvailable && retryAttempt < 2) {
+//         console.log(`Attempting to wake up server (attempt ${retryAttempt + 1}/2)...`);
+//         await new Promise(resolve => setTimeout(resolve, 3000));
+//         serverAvailable = await checkServerAvailability();
+//         retryAttempt++;
+//     }
+//
+//     if (!serverAvailable) {
+//         throw new Error('Server is currently unavailable. Please try again later.');
+//     }
+//
+//     const defaultOptions = {
+//         mode: 'cors',
+//         credentials: 'include',
+//         headers: {
+//             'Accept': 'application/json',
+//             'Origin': window.location.origin
+//         }
+//     };
+//
+//     // Only add Content-Type for POST, PUT, PATCH requests with a body
+//     if (options.method && ['POST', 'PUT', 'PATCH'].includes(options.method.toUpperCase()) && options.body) {
+//         defaultOptions.headers['Content-Type'] = 'application/json';
+//     }
+//
+//     const finalOptions = {
+//         ...defaultOptions,
+//         ...options,
+//         headers: {
+//             ...defaultOptions.headers,
+//             ...options.headers
+//         }
+//     };
+//
+//     console.log('Making API request:', {
+//         url: `${API_URL}${endpoint}`,
+//         method: finalOptions.method || 'GET',
+//         headers: finalOptions.headers,
+//         mode: finalOptions.mode,
+//         credentials: finalOptions.credentials
+//     });
+//
+//     let lastError;
+//     let attempts = 0;
+//
+//     while (attempts < retryCount) {
+//         try {
+//             const response = await fetch(`${API_URL}${endpoint}`, finalOptions);
+//
+//             console.debug('API Response:', {
+//                 status: response.status,
+//                 statusText: response.statusText,
+//                 headers: Object.fromEntries(response.headers.entries()),
+//                 url: response.url,
+//             });
+//
+//             // Handle various status codes
+//             if (response.status === 503) {
+//                 console.warn('Service temporarily unavailable, retrying...');
+//                 lastError = new Error('Service temporarily unavailable');
+//                 await new Promise(resolve => setTimeout(resolve, 3000 + (attempts * 2000))); // Progressive delay
+//                 attempts++;
+//                 continue;
+//             }
+//
+//             if (response.status === 404) {
+//                 throw new Error(`API endpoint not found: ${endpoint}`);
+//             }
+//
+//             if (!response.ok) {
+//                 const errorData = await response.json().catch(() => ({}));
+//                 throw new Error(errorData.error || `API call failed: ${response.status} ${response.statusText}`);
+//             }
+//
+//             const contentType = response.headers.get('content-type');
+//             if (contentType && contentType.includes('application/json')) {
+//                 const data = await response.json();
+//                 return data;
+//             } else {
+//                 console.warn('Response is not JSON:', contentType);
+//                 return { message: 'Response received but not JSON' };
+//             }
+//         } catch (error) {
+//             console.error(`API call failed (attempt ${attempts + 1}/${retryCount}):`, error);
+//             lastError = error;
+//
+//             if (attempts < retryCount - 1) {
+//                 await new Promise(resolve => setTimeout(resolve, 3000 + (attempts * 2000))); // Progressive delay
+//                 attempts++;
+//                 continue;
+//             }
+//             break;
+//         }
+//     }
+//
+//     console.error('All retry attempts failed:', lastError);
+//     throw new Error(`Failed to fetch after ${retryCount} attempts: ${lastError.message}`);
+// }
 
-    let serverAvailable = await checkServerAvailability();
-    let retryAttempt = 0;
-
-    while (!serverAvailable && retryAttempt < 2) {
-        console.log(`Attempting to wake up server (attempt ${retryAttempt + 1}/2)...`);
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        serverAvailable = await checkServerAvailability();
-        retryAttempt++;
-    }
-
-    if (!serverAvailable) {
-        throw new Error('Server is currently unavailable. Please try again later.');
-    }
-
+export async function fetchWithCors(endpoint, options = {}) {
     const defaultOptions = {
         mode: 'cors',
         credentials: 'include',
@@ -128,7 +216,6 @@ export async function fetchWithCors(endpoint, options = {}, retryCount = 3) {
         }
     };
 
-    // Only add Content-Type for POST, PUT, PATCH requests with a body
     if (options.method && ['POST', 'PUT', 'PATCH'].includes(options.method.toUpperCase()) && options.body) {
         defaultOptions.headers['Content-Type'] = 'application/json';
     }
@@ -142,67 +229,12 @@ export async function fetchWithCors(endpoint, options = {}, retryCount = 3) {
         }
     };
 
-    console.log('Making API request:', {
-        url: `${API_URL}${endpoint}`,
-        method: finalOptions.method || 'GET',
-        headers: finalOptions.headers,
-        mode: finalOptions.mode,
-        credentials: finalOptions.credentials
-    });
+    const response = await fetch(`${API_URL}${endpoint}`, finalOptions);
 
-    let lastError;
-    let attempts = 0;
-
-    while (attempts < retryCount) {
-        try {
-            const response = await fetch(`${API_URL}${endpoint}`, finalOptions);
-            
-            console.debug('API Response:', {
-                status: response.status,
-                statusText: response.statusText,
-                headers: Object.fromEntries(response.headers.entries()),
-                url: response.url,
-            });
-
-            // Handle various status codes
-            if (response.status === 503) {
-                console.warn('Service temporarily unavailable, retrying...');
-                lastError = new Error('Service temporarily unavailable');
-                await new Promise(resolve => setTimeout(resolve, 3000 + (attempts * 2000))); // Progressive delay
-                attempts++;
-                continue;
-            }
-
-            if (response.status === 404) {
-                throw new Error(`API endpoint not found: ${endpoint}`);
-            }
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.error || `API call failed: ${response.status} ${response.statusText}`);
-            }
-
-            const contentType = response.headers.get('content-type');
-            if (contentType && contentType.includes('application/json')) {
-                const data = await response.json();
-                return data;
-            } else {
-                console.warn('Response is not JSON:', contentType);
-                return { message: 'Response received but not JSON' };
-            }
-        } catch (error) {
-            console.error(`API call failed (attempt ${attempts + 1}/${retryCount}):`, error);
-            lastError = error;
-
-            if (attempts < retryCount - 1) {
-                await new Promise(resolve => setTimeout(resolve, 3000 + (attempts * 2000))); // Progressive delay
-                attempts++;
-                continue;
-            }
-            break;
-        }
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `API call failed: ${response.status} ${response.statusText}`);
     }
 
-    console.error('All retry attempts failed:', lastError);
-    throw new Error(`Failed to fetch after ${retryCount} attempts: ${lastError.message}`);
+    return response.json();
 }
