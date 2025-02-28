@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Bell, Check, RefreshCw, AlertTriangle } from "lucide-react";
-import { API_URL } from "./utils/api.js";
+import { API_URL, fetchWithCors } from "./utils/api.js";
 
 function Home() {
     const [dates, setDates] = useState([]);

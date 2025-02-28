@@ -5,10 +5,14 @@ const DEVELOPMENT_API = 'http://localhost:3001';
 // Debug environment
 console.log('Current environment:', process.env.NODE_ENV);
 console.log('VITE_NODE_ENV:', import.meta.env.VITE_NODE_ENV);
+console.log('Production mode:', import.meta.env.PROD);
 
-export const API_URL = import.meta.env.PROD 
-    ? PRODUCTION_API
-    : DEVELOPMENT_API;
+// Determine API URL based on multiple environment indicators
+export const API_URL = (
+    import.meta.env.PROD || 
+    process.env.NODE_ENV === 'production' ||
+    window.location.hostname !== 'localhost'
+) ? PRODUCTION_API : DEVELOPMENT_API;
 
 console.log('Using API URL:', API_URL);
 
