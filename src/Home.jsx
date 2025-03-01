@@ -218,7 +218,7 @@ function Home() {
                 {/* Header Section */}
                 <div className="text-center space-y-6 md:space-y-8">
                     <div className="space-y-2">
-                        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-800 tracking-tight">
+                        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold bg-clip-text bg-gradient-to-r from-blue-600 to-blue-800 tracking-tight">
                             <span className="block transform transition-all duration-300 hover:scale-[1.01]">
                                 Réservation de l'atelier bois
                             </span>
