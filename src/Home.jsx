@@ -44,10 +44,11 @@ function Home() {
     useEffect(() => {
         const fetchAvailabilityStatuses = async () => {
             try {
-                console.log('Fetching availability statuses...');
-                const response = await fetch('/api/admin/availability-status');
+                console.log('Fetching availability statuses from:', `${API_URL}/api/admin/availability-status`);
+                const response = await fetchWithCors('/api/admin/availability-status');
                 console.log('Availability response:', response);
                 setAvailabilityStatuses(response);
+
             } catch (error) {
                 console.error("Error fetching availability:", error);
                 setError(error.message);
@@ -218,7 +219,7 @@ function Home() {
                 {/* Header Section */}
                 <div className="text-center space-y-6 md:space-y-8">
                     <div className="space-y-2">
-                        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold bg-clip-text bg-gradient-to-r from-blue-600 to-blue-800 tracking-tight">
+                        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight">
                             <span className="block transform transition-all duration-300 hover:scale-[1.01]">
                                 Réservation de l'atelier bois
                             </span>
