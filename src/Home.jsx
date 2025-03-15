@@ -78,7 +78,12 @@ function Home() {
 
             const fetchBookings = async () => {
                 try {
-                    const response = await fetchWithCors(`/api/bookings/${selectedDay}`);
+                    const year = new Date(selectedDay).getFullYear();
+                    const month = String(new Date(selectedDay).getMonth() + 1).padStart(2, '0');
+                    const day = String(new Date(selectedDay).getDate()).padStart(2, '0');
+                    const formattedDate = `${year}-${month}-${day}`;
+                    
+                    const response = await fetchWithCors(`/api/admin/bookings?day=${formattedDate}`);
                     if (response) {
                         setBookings(response);
                     }
