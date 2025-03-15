@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bell, Check, RefreshCw, AlertTriangle } from "lucide-react";
+import { Bell, Check, RefreshCw, AlertTriangle, Users } from "lucide-react";
 import { API_URL, fetchWithCors } from "./utils/api.js";
 
 function Home() {
@@ -19,6 +19,7 @@ function Home() {
     const [showModal, setShowModal] = useState(false);
     const [modalMessage, setModalMessage] = useState("");
     const [error, setError] = useState(null);
+    const [bookings, setBookings] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -74,7 +75,19 @@ function Home() {
                 }
             };
 
+            const fetchBookings = async () => {
+                try {
+                    const response = await fetchWithCors(`/api/bookings/${selectedDay}`);
+                    if (response) {
+                        setBookings(response);
+                    }
+                } catch (error) {
+                    console.error("Error fetching bookings:", error);
+                }
+            };
+
             checkAvailability();
+            fetchBookings();
         }
     }, [selectedDay]);
 
@@ -232,9 +245,6 @@ function Home() {
                             <span className="block font-medium text-gray-700">
                                 Sélectionnez une date disponible et réservez votre créneau
                             </span>
-                            <span className="block text-gray-600 mt-1">
-                                Kies een beschikbare datum en reserveer uw tijdslot
-                            </span>
                         </p>
                     </div>
                 </div>
@@ -263,6 +273,11 @@ function Home() {
                                         : "bg-gray-50 cursor-not-allowed"}
                                 `}
                             >
+                                <p className={`text-xs sm:text-sm font-medium ${isSelectable ? 'text-gray-600' : 'text-gray-400'}`}>
+                                    {new Date(date).toLocaleDateString("fr-FR", {
+                                        month: "short",
+                                    }).slice(0, 3)}
+                                </p>
                                 <p className={`text-sm sm:text-base font-semibold ${isSelectable ? 'text-gray-800' : 'text-gray-400'}`}>
                                     {new Date(date).toLocaleDateString("fr-FR", {
                                         weekday: "short",
@@ -308,6 +323,25 @@ function Home() {
                                 </span>
                             </p>
                         </div>
+                    </div>
+                )}
+
+                {/* Bookings List */}
+                {selectedDay && bookings.length > 0 && (
+                    <div className="max-w-2xl mx-auto bg-white rounded-xl p-6 shadow-sm border border-gray-200 mt-8">
+                        <div className="flex items-center space-x-2 mb-4">
+                            <Users className="w-5 h-5 text-blue-600" />
+                            <h3 className="text-lg font-semibold text-gray-900">
+                                Réservations du jour
+                            </h3>
+                        </div>
+                        <ul className="space-y-2">
+                            {bookings.map((booking, index) => (
+                                <li key={index} className="text-gray-700">
+                                    {booking.first_name} {booking.last_name.charAt(0)}.
+                                </li>
+                            ))}
+                        </ul>
                     </div>
                 )}
 
