@@ -448,43 +448,6 @@ function Home() {
                                 />
                             </div>
 
-                            <div className="grid md:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <label className="block text-sm font-medium text-gray-700">
-                                        Heure de début
-                                    </label>
-                                    <select
-                                        value={startHour}
-                                        onChange={(e) => setStartHour(parseInt(e.target.value))}
-                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
-                                        required
-                                    >
-                                        {Array.from({ length: 6 }, (_, i) => (
-                                            <option key={i} value={14 + i}>
-                                                {14 + i}:00
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="block text-sm font-medium text-gray-700">
-                                        Heure de fin
-                                    </label>
-                                    <select
-                                        value={endHour}
-                                        onChange={(e) => setEndHour(parseInt(e.target.value))}
-                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
-                                        required
-                                    >
-                                        {Array.from({ length: 6 }, (_, i) => (
-                                            <option key={i} value={14 + i}>
-                                                {14 + i}:00
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-
                             <button
                                 type="submit"
                                 disabled={isLoading}
