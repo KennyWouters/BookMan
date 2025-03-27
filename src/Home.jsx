@@ -20,7 +20,17 @@ function Home() {
     const [modalMessage, setModalMessage] = useState("");
     const [error, setError] = useState(null);
     const [bookings, setBookings] = useState([]);
+    const [isBookingsClosed, setIsBookingsClosed] = useState(false);
     const navigate = useNavigate();
+
+    const isBookingsClosedForDay = (date) => {
+        const today = new Date();
+        const selectedDate = new Date(date);
+        const isToday = selectedDate.toDateString() === today.toDateString();
+        const currentHour = today.getHours();
+        
+        return isToday && currentHour >= 14;
+    };
 
     useEffect(() => {
         const fetchDates = async () => {
@@ -61,6 +71,7 @@ function Home() {
 
     useEffect(() => {
         if (selectedDay) {
+            setIsBookingsClosed(isBookingsClosedForDay(selectedDay));
             const checkAvailability = async () => {
                 try {
                     const response = await fetch(`${API_URL}/api/availability/${selectedDay}`);
@@ -386,7 +397,7 @@ function Home() {
                 )}
 
                 {/* Booking Form */}
-                {selectedDay && !isFullyBooked && (
+                {selectedDay && !isFullyBooked && !isBookingsClosed && (
                     <div className="bg-white shadow-2xl rounded-2xl border border-gray-100 p-8">
                         <h2 className="text-2xl font-bold text-gray-900 mb-6">
                             Réserver pour le {new Date(selectedDay).toLocaleDateString("fr-FR", {
@@ -492,6 +503,23 @@ function Home() {
                                 )}
                             </button>
                         </form>
+                    </div>
+                )}
+
+                {/* Bookings Closed Message */}
+                {selectedDay && isBookingsClosed && (
+                    <div className="max-w-2xl mx-auto bg-red-50 rounded-xl p-6 border border-red-100 shadow-sm">
+                        <div className="flex items-center justify-center">
+                            <AlertTriangle className="w-5 h-5 text-red-500 mr-2" />
+                            <p className="text-center">
+                                <span className="block text-base font-medium text-red-600">
+                                    Les réservations sont fermées pour aujourd&apos;hui
+                                </span>
+                                <span className="block text-sm text-red-500 mt-1">
+                                    Reserveringen zijn gesloten voor vandaag
+                                </span>
+                            </p>
+                        </div>
                     </div>
                 )}
 
